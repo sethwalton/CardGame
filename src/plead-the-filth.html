@@ -282,7 +282,9 @@ textarea{min-height:92px;resize:vertical}
         <button class="btn btn--sm" data-action="print" id="btn-print" hidden>Print sheets</button>
       </div>
     </div>
-    <p class="mono" id="review-counts" style="margin-bottom:14px"></p>
+    <div id="deck-problems" role="alert"></div>
+    <p class="mono" id="review-counts" style="margin-bottom:4px"></p>
+    <p class="mono" id="deck-counts" style="margin-bottom:14px"></p>
     <div id="cards-out"></div>
   </section>
 
@@ -387,7 +389,7 @@ textarea{min-height:92px;resize:vertical}
 
         <section id="r-cards">
           <h2>3. Complete card list</h2>
-          <p>87 cards: four decks of 20, one Gavel and six Plea Bargains. This table always shows the current wording, including any edits made in the Cards tab.</p>
+          <p><span id="count-line">87 cards: four decks of 20, one Gavel and six Plea Bargains.</span> The cards are kept in the <code>cards</code> folder, one file per deck, and this table always shows the current wording, including any edits made in the Cards tab.</p>
           <div class="scroll" id="rules-table"></div>
         </section>
 
@@ -395,7 +397,7 @@ textarea{min-height:92px;resize:vertical}
           <h2>4. Balance check</h2>
           <h3>Why no card or strategy dominates</h3>
           <ul>
-            <li><strong>Cards are prompts, not powers.</strong> Points only come from votes. No card scores, blocks or steals, so there is nothing to draft or hoard. Four independent decks give 160,000 possible charge sheets, so nobody can prepare material.</li>
+            <li><strong>Cards are prompts, not powers.</strong> Points only come from votes. No card scores, blocks or steals, so there is nothing to draft or hoard. Four independent decks give <span id="combo-count">160,000</span> possible charge sheets, so nobody can prepare material.</li>
             <li><strong>Hard draws have an escape.</strong> The Plea Bargain lets each player fix one bad card per game. It is deliberately a single use, so choosing when to spend it is a real decision.</li>
             <li><strong>The leader carries the Gavel.</strong> The last winner is the Judge, and the Judge cannot win a tie. With three players voting at random, the Judge wins about 25% of rounds and the other two about 37.5% each. In return the Judge pleads last, which is the best seat in a voting game. The net effect is a gentle catch-up rule.</li>
             <li><strong>Voting is simultaneous.</strong> Pointing on a count stops players from piling onto whoever is already winning the vote.</li>
@@ -519,9 +521,17 @@ textarea{min-height:92px;resize:vertical}
 
 <dialog id="editor"></dialog>
 <dialog id="io">
-  <h2 style="font-size:1.6rem;margin-bottom:8px">Export / import card list</h2>
-  <p class="note" style="margin-bottom:10px">This is the full card list as JSON, with your edits, statuses and notes. Copy it to keep a backup or to move your edits to another copy of the game. To import, paste a list here and apply it.</p>
-  <textarea id="io-text" style="min-height:240px;font-family:var(--font-mono);font-size:.8rem" aria-label="Card list JSON"></textarea>
+  <h2 style="font-size:1.6rem;margin-bottom:8px">Export / import</h2>
+  <label class="field" style="margin-bottom:10px"><span>What to export</span><select id="io-format">
+    <option value="crime">Deck file: cards/crime.js</option>
+    <option value="place">Deck file: cards/place.js</option>
+    <option value="evidence">Deck file: cards/evidence.js</option>
+    <option value="twist">Deck file: cards/twist.js</option>
+    <option value="special">Deck file: cards/special.js</option>
+    <option value="json">Review backup (JSON)</option>
+  </select></label>
+  <p class="note" id="io-help" style="margin-bottom:10px"></p>
+  <textarea id="io-text" style="min-height:240px;font-family:var(--font-mono);font-size:.8rem" aria-label="Exported text" spellcheck="false"></textarea>
   <p class="note" id="io-msg" style="margin-top:6px" role="status"></p>
   <div class="row" style="margin-top:12px">
     <button class="btn btn--sm" data-action="io-copy" id="btn-io-copy">Copy</button>
@@ -531,96 +541,12 @@ textarea{min-height:92px;resize:vertical}
 </dialog>
 <div id="print"></div>
 
-<script type="application/json" id="card-data">
-[
-{"id":"C01","deck":"crime","name":"Practicing Medicine Without a License","text":"giving out free, unrequested prostate exams"},
-{"id":"C02","deck":"crime","name":"Indecent Exposure","text":"helicoptering your junk at strangers \"as a greeting\""},
-{"id":"C03","deck":"crime","name":"Grand Theft Hearse","text":"joyriding a stolen hearse with the casket still in the back"},
-{"id":"C04","deck":"crime","name":"Drunk and Disorderly","text":"getting blackout drunk and losing a fistfight to your own reflection"},
-{"id":"C05","deck":"crime","name":"Solicitation","text":"offering handjobs in exchange for chicken nuggets"},
-{"id":"C06","deck":"crime","name":"Narcotics Fraud","text":"selling your grandfather's ashes as \"premium Colombian cocaine\""},
-{"id":"C07","deck":"crime","name":"Lewd Conduct","text":"having a loud, sloppy threesome"},
-{"id":"C08","deck":"crime","name":"Assaulting an Officer","text":"slapping a police horse across the face with a 14-inch dildo"},
-{"id":"C09","deck":"crime","name":"Arson","text":"setting your ex's car on fire \"for closure\""},
-{"id":"C10","deck":"crime","name":"Impersonating Clergy","text":"posing as a priest just to hear the filthy confessions"},
-{"id":"C11","deck":"crime","name":"Public Defecation","text":"taking a slow dump while holding eye contact with a security guard"},
-{"id":"C12","deck":"crime","name":"Abuse of a Corpse","text":"puppeteering your dead uncle's body to cash his pension check"},
-{"id":"C13","deck":"crime","name":"Breaking and Entering","text":"breaking in, licking everything, and stealing nothing"},
-{"id":"C14","deck":"crime","name":"Manufacturing Narcotics","text":"running a meth lab out of a bouncy castle"},
-{"id":"C15","deck":"crime","name":"Driving Under the Influence","text":"crashing a mobility scooter while tripping balls on mushrooms"},
-{"id":"C16","deck":"crime","name":"Bribery","text":"trying to pay off a cop with an aggressively bad lap dance"},
-{"id":"C17","deck":"crime","name":"Resisting Arrest","text":"stripping naked and greasing yourself up so the cops couldn't hold on"},
-{"id":"C18","deck":"crime","name":"Disturbing the Peace","text":"screaming your safe word through a megaphone for 45 minutes"},
-{"id":"C19","deck":"crime","name":"Unlicensed Business","text":"selling your own sperm out of a beer cooler"},
-{"id":"C20","deck":"crime","name":"Cannibalism","text":"hosting a barbecue where the \"pulled pork\" turned out to be your landlord"},
-
-{"id":"P01","deck":"place","name":"Grandma's Funeral","text":"at your grandmother's open-casket funeral"},
-{"id":"P02","deck":"place","name":"Your Own Wedding","text":"at the altar, midway through your own wedding vows"},
-{"id":"P03","deck":"place","name":"ICU Waiting Room","text":"in the ICU waiting room"},
-{"id":"P04","deck":"place","name":"Bingo Night","text":"at a nursing home bingo night"},
-{"id":"P05","deck":"place","name":"Moving Rideshare","text":"in the back seat of a moving rideshare"},
-{"id":"P06","deck":"place","name":"Nudist Retirement Village","text":"at a nudist retirement community"},
-{"id":"P07","deck":"place","name":"Support Group","text":"in the sharing circle at a sex addiction support group"},
-{"id":"P08","deck":"place","name":"Easter Mass","text":"in the front pew during Easter Mass"},
-{"id":"P09","deck":"place","name":"Your Intervention","text":"at your own intervention"},
-{"id":"P10","deck":"place","name":"Transatlantic Flight","text":"in the aisle of a full flight, somewhere over the Atlantic"},
-{"id":"P11","deck":"place","name":"Parents' Basement","text":"at a swingers' party in your parents' basement"},
-{"id":"P12","deck":"place","name":"Frozen Foods","text":"in the frozen food aisle of a 24-hour supermarket at 4 a.m."},
-{"id":"P13","deck":"place","name":"Police Station Lobby","text":"in the lobby of the police station"},
-{"id":"P14","deck":"place","name":"Lunch Buffet","text":"at a strip club's all-you-can-eat lunch buffet"},
-{"id":"P15","deck":"place","name":"Anger Management","text":"at your court-ordered anger management class"},
-{"id":"P16","deck":"place","name":"Festival Porta-Potty","text":"inside a music festival porta-potty with four other people"},
-{"id":"P17","deck":"place","name":"Fertility Clinic","text":"in the waiting room of a fertility clinic"},
-{"id":"P18","deck":"place","name":"Class Reunion","text":"on stage at your 20-year high school reunion"},
-{"id":"P19","deck":"place","name":"Morning News","text":"live on the local morning news"},
-{"id":"P20","deck":"place","name":"This Courtroom","text":"in this very courtroom, twenty minutes ago"},
-
-{"id":"E01","deck":"evidence","name":"The Duffel Bag","text":"a duffel bag of used condoms, not all of them yours"},
-{"id":"E02","deck":"evidence","name":"The Toe","text":"a human toe in a sandwich bag"},
-{"id":"E03","deck":"evidence","name":"Not Organs","text":"a cooler labeled \"NOT ORGANS\""},
-{"id":"E04","deck":"evidence","name":"Sedated Swan","text":"a heavily sedated swan"},
-{"id":"E05","deck":"evidence","name":"The Extinguisher","text":"a strap-on the size of a fire extinguisher"},
-{"id":"E06","deck":"evidence","name":"Bitten Brick","text":"a brick of cocaine with a bite taken out of it"},
-{"id":"E07","deck":"evidence","name":"Boss's Underwear","text":"your boss's underwear, still warm"},
-{"id":"E08","deck":"evidence","name":"Self-Portrait","text":"a sex doll with a photo of your own face taped to it"},
-{"id":"E09","deck":"evidence","name":"Bucket of Lube","text":"a five-gallon bucket of lube, half empty"},
-{"id":"E10","deck":"evidence","name":"The Snack Jar","text":"an urn you kept calling \"the snack jar\""},
-{"id":"E11","deck":"evidence","name":"Hugh Janus","text":"three passports, all issued to \"Hugh Janus\""},
-{"id":"E12","deck":"evidence","name":"The Collection","text":"a mason jar of pubic hair, labeled by donor"},
-{"id":"E13","deck":"evidence","name":"Frozen Turkey","text":"a frozen turkey with a suspiciously well-used hole in it"},
-{"id":"E14","deck":"evidence","name":"Six Positives","text":"six positive pregnancy tests, none of them yours"},
-{"id":"E15","deck":"evidence","name":"Burial Kit","text":"a shovel, a tarp, and a bag of quicklime"},
-{"id":"E16","deck":"evidence","name":"Full Capacity","text":"an adult diaper at full capacity"},
-{"id":"E17","deck":"evidence","name":"Buzzing Raccoon","text":"a taxidermied raccoon with a vibrator sewn inside"},
-{"id":"E18","deck":"evidence","name":"Spare Leg","text":"somebody else's prosthetic leg"},
-{"id":"E19","deck":"evidence","name":"The List","text":"a handwritten list titled \"People Who Deserve It\""},
-{"id":"E20","deck":"evidence","name":"Officer's Pants","text":"a police officer's badge, taser, and pants"},
-
-{"id":"T01","deck":"twist","name":"The Sock","text":"You were wearing nothing but a single sock, and it wasn't on your foot."},
-{"id":"T02","deck":"twist","name":"Repeat Offender","text":"You were already out on bail for doing this exact thing."},
-{"id":"T03","deck":"twist","name":"Going Viral","text":"You live-streamed the entire thing to 40,000 viewers."},
-{"id":"T04","deck":"twist","name":"Bad Breakup","text":"The arresting officer is your ex. It did not end well."},
-{"id":"T05","deck":"twist","name":"Proud Mom","text":"Your mom was there the whole time, cheering you on."},
-{"id":"T06","deck":"twist","name":"First Date","text":"You were on a first date. They're sitting in the gallery today."},
-{"id":"T07","deck":"twist","name":"Ghost Mode","text":"You were so high on ketamine you thought you were a ghost."},
-{"id":"T08","deck":"twist","name":"Kink Unlocked","text":"You visibly enjoyed being handcuffed. A lot."},
-{"id":"T09","deck":"twist","name":"Honest Abe","text":"You were dressed as a sexy Abraham Lincoln."},
-{"id":"T10","deck":"twist","name":"No Remorse","text":"When they read you your rights, you winked and said, \"I'd do it again.\""},
-{"id":"T11","deck":"twist","name":"Unrelated Corpse","text":"There was a dead body nearby that you insist is \"unrelated.\""},
-{"id":"T12","deck":"twist","name":"Five Days Up","text":"You'd been awake for five days on nothing but gas-station boner pills."},
-{"id":"T13","deck":"twist","name":"Snitch Granny","text":"Your 84-year-old grandmother was your accomplice, and she's already snitched."},
-{"id":"T14","deck":"twist","name":"At Attention","text":"You were visibly, undeniably aroused the entire time. You still are."},
-{"id":"T15","deck":"twist","name":"On the Clock","text":"You were in uniform and on the clock as a county health inspector."},
-{"id":"T16","deck":"twist","name":"Squad Car Surprise","text":"You shat in the back of the squad car and blamed the officer."},
-{"id":"T17","deck":"twist","name":"Glitter and Blood","text":"You were covered head to toe in glitter and a blood type that isn't yours."},
-{"id":"T18","deck":"twist","name":"Stone-Cold Sober","text":"You were stone-cold sober. Every test came back clean."},
-{"id":"T19","deck":"twist","name":"Self-Report","text":"You called 911 on yourself, just to brag."},
-{"id":"T20","deck":"twist","name":"Conflict of Interest","text":"You slept with this judge's spouse last week, and the judge knows."},
-
-{"id":"G01","deck":"gavel","name":"The Gavel","qty":1,"text":"You are the Judge. Plead last and call the vote. Your vote breaks ties, but never in your own favour. Pass this card to whoever is acquitted."},
-{"id":"B01","deck":"bargain","name":"Plea Bargain","qty":6,"text":"Once per game, before your timer starts: turn this card face down to discard one card from your charge sheet and draw a replacement from the same deck. You must keep the new card."}
-]
-</script>
+<script>window.PleadTheFilth={decks:{},deck(k,t){(this.decks[k]=this.decks[k]||[]).push(t)}};</script>
+<script src="cards/crime.js"></script>
+<script src="cards/place.js"></script>
+<script src="cards/evidence.js"></script>
+<script src="cards/twist.js"></script>
+<script src="cards/special.js"></script>
 
 <script>
 (function(){
@@ -648,15 +574,65 @@ const DECK={
   bargain:{key:'bargain',name:'Bargain',order:'',lead:'One use per game',type:'Action'}
 };
 const PLAY_DECKS=['crime','place','evidence','twist'];
-const BASE=JSON.parse($('#card-data').textContent);
-const BASE_BY_ID=Object.fromEntries(BASE.map(c=>[c.id,c]));
+/* The cards live in cards/*.js, one file per deck, written for people to edit.
+   Each file calls PleadTheFilth.deck("<deck>", `<one card per line>`).
+   tools/build.mjs parses them the same way; keep the two parsers in step. */
+const DECK_FILE={crime:'crime',place:'place',evidence:'evidence',twist:'twist',gavel:'special',bargain:'special'};
+const ID_PREFIX={crime:'C',place:'P',evidence:'E',twist:'T',gavel:'G',bargain:'B'};
+const DECK_CAP=20;
+let BASE=[],BASE_BY_ID={},deckProblems=[],deckSource='';
+function parseDecks(raw){
+  const out=[],problems=[],seen=new Set(),pending=[];
+  const short=t=>t.length>48?t.slice(0,45)+'...':t;
+  Object.keys(DECK_FILE).forEach(k=>{
+    const label=DECK[k].name+' deck ('+DECK_FILE[k]+'.js)';
+    (raw[k]||[]).join('\n').split(/\r?\n/).forEach(line=>{
+      const t=line.trim();if(!t||t[0]==='#'||t.startsWith('//'))return;
+      const parts=t.split('|').map(x=>x.trim());let qty=1;
+      if(parts.length>2&&/^[x×]\s*\d+$/i.test(parts[parts.length-1]))qty=Math.max(1,parseInt(parts.pop().replace(/\D/g,''),10));
+      let id='',name,text;
+      if(parts.length===2)[name,text]=parts;else if(parts.length===3)[id,name,text]=parts;
+      else{problems.push(label+': "'+short(t)+'" needs to be  ID | Card name | Card text');return}
+      if(!name||!text){problems.push(label+': "'+short(t)+'" is missing its '+(name?'card text':'card name'));return}
+      id=id.toUpperCase();
+      if(id&&!/^[A-Z0-9_-]{1,12}$/.test(id)){problems.push(label+': "'+id+'" is not a valid ID. Use letters and numbers only, like C21');return}
+      if(id&&seen.has(id)){problems.push(label+': the ID '+id+' is used twice. The second card was left out');return}
+      if(id)seen.add(id);
+      const c={id,deck:k,name,text};if(qty>1)c.qty=qty;out.push(c);if(!id)pending.push(c);
+    });
+  });
+  pending.forEach(c=>{ // cards added without an ID get the next free number for their deck
+    const pre=ID_PREFIX[c.deck];let n=0;
+    seen.forEach(id=>{const m=id.match(/^([A-Z]+)(\d+)$/);if(m&&m[1]===pre)n=Math.max(n,+m[2])});
+    c.id=pre+String(n+1).padStart(2,'0');seen.add(c.id);
+  });
+  return {cards:out,problems};
+}
+async function loadDecks(){
+  const P=window.PleadTheFilth||{decks:{}},raw=Object.assign({},P.decks);
+  const missing=[...new Set(Object.keys(DECK_FILE).filter(k=>!raw[k]).map(k=>DECK_FILE[k]))];
+  // Where the deck scripts could not run (a host that blocks them), read the files as text instead.
+  if(missing.length&&location.protocol!=='file:'){
+    await Promise.all(missing.map(f=>fetch('cards/'+f+'.js').then(r=>r.ok?r.text():'').catch(()=>'').then(src=>{
+      const re=/PleadTheFilth\.deck\(\s*["'](\w+)["']\s*,\s*`([\s\S]*?)`\s*\)/g;let m;
+      while((m=re.exec(src)))(raw[m[1]]=raw[m[1]]||[]).push(m[2]);
+    })));
+    deckSource='fetched';
+  }
+  const absent=[...new Set(Object.keys(DECK_FILE).filter(k=>!raw[k]).map(k=>DECK_FILE[k]))];
+  const r=parseDecks(raw);
+  BASE=r.cards;BASE_BY_ID=Object.fromEntries(BASE.map(c=>[c.id,c]));
+  deckProblems=absent.map(f=>'cards/'+f+'.js did not load. Check that the file is in the cards folder and has no stray ` character inside a card.').concat(r.problems);
+  return {absent,ready:PLAY_DECKS.every(k=>playable(k).length>0)&&BASE.some(c=>c.deck==='gavel')&&BASE.some(c=>c.deck==='bargain')};
+}
 const STATUS={'':'Unreviewed',approved:'Approved',needs:'Needs work',cut:'Cut'};
 
 let review=ls.get('ptf-review')||{cards:{},stats:{},updatedAt:0};
 review.cards=review.cards||{};review.stats=review.stats||{};
 
+const GONE={deck:'crime',name:'Removed card',text:'This card is no longer in the deck files.'};
 function card(id){
-  const b=BASE_BY_ID[id],o=review.cards[id]||{};
+  const b=BASE_BY_ID[id]||Object.assign({},GONE,{deck:(Object.keys(ID_PREFIX).find(k=>ID_PREFIX[k]===String(id)[0]))||'crime'}),o=BASE_BY_ID[id]?(review.cards[id]||{}):{};
   return {id,deck:b.deck,qty:b.qty||1,name:o.name!=null?o.name:b.name,text:o.text!=null?o.text:b.text,status:o.status||'',note:o.note||'',
     edited:(o.name!=null&&o.name!==b.name)||(o.text!=null&&o.text!==b.text)};
 }
@@ -1010,6 +986,8 @@ function renderCards(){
   $('#status-chips').innerHTML=sts.map(s=>`<button class="chip" data-action="filt-status" data-v="${s[0]}" id="chip-s-${s[0]||'none'}" aria-pressed="${filt.status===s[0]}">${s[1]}</button>`).join('');
   const cnt=k=>all.filter(c=>c.status===k).length;
   $('#review-counts').textContent=`${all.length} designs, ${all.reduce((a,c)=>a+c.qty,0)} cards · ${cnt('approved')} approved · ${cnt('needs')} need work · ${cnt('cut')} cut · ${cnt('')} unreviewed`;
+  $('#deck-counts').innerHTML='In play: '+PLAY_DECKS.map(k=>{const n=playable(k).length;return n>DECK_CAP?`<span style="color:var(--accent);font-weight:600">${DECK[k].name} ${n} of ${DECK_CAP}, cut ${n-DECK_CAP} before printing</span>`:`${DECK[k].name} ${n} of ${DECK_CAP}`}).join(' · ');
+  $('#deck-problems').innerHTML=deckProblems.length?`<div class="callout" style="margin-bottom:14px;border-color:var(--accent)"><h3>Check the deck files</h3><ul style="margin:6px 0 0;padding-left:1.2em">${deckProblems.map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>`:'';
   const list=all.filter(c=>(filt.deck==='all'||(filt.deck==='extra'?!PLAY_DECKS.includes(c.deck):c.deck===filt.deck))&&(filt.status==='all'||c.status===filt.status));
   $('#btn-toggle-table').textContent=tableView?'Card view':'Table view';
   $('#cards-out').innerHTML=!list.length?'<p class="note">No cards match these filters.</p>':tableView?cardTable(list,true):
@@ -1020,7 +998,12 @@ function cardTable(list,stats){
   ${list.map(c=>{const s=review.stats[c.id]||{};return `<tr><td class="mono">${c.id}</td><td><strong>${esc(c.name)}</strong></td><td>${DECK[c.deck].name}</td><td>${DECK[c.deck].type}</td><td>${c.qty}</td><td style="min-width:16rem">${esc(c.text)}</td><td>${c.deck==='crime'?'1 if acquitted':'None'}</td>${stats?`<td><button class="btn btn--sm btn--ghost" data-action="edit" data-id="${c.id}" id="row-${c.id}">${STATUS[c.status]}</button></td><td>${s.drawn||0}</td><td>${s.won||0}</td><td>${s.swapped||0}</td>`:''}</tr>`}).join('')}
   <tr><td colspan="4"><strong>Total</strong></td><td><strong>${list.reduce((a,c)=>a+c.qty,0)}</strong></td><td colspan="${stats?6:2}"></td></tr></tbody></table></div>`;
 }
-function renderRulesTable(){$('#rules-table').innerHTML=cardTable(allCards(),false)}
+function renderRulesTable(){
+  const all=allCards(),n=k=>all.filter(c=>c.deck===k).reduce((a,c)=>a+c.qty,0);
+  $('#count-line').textContent=`${all.reduce((a,c)=>a+c.qty,0)} cards: ${PLAY_DECKS.map(k=>n(k)+' '+DECK[k].name).join(', ')}, ${n('gavel')} Gavel and ${n('bargain')} Plea Bargains.`;
+  const combos=$('#combo-count');if(combos)combos.textContent=PLAY_DECKS.reduce((a,k)=>a*playable(k).length,1).toLocaleString('en-US');
+  $('#rules-table').innerHTML=cardTable(all,false);
+}
 function openEditor(id){
   const c=card(id),dlg=$('#editor');
   dlg.dataset.id=id;
@@ -1037,8 +1020,66 @@ function openEditor(id){
 }
 function editField(id,k,v){
   const o=review.cards[id]||(review.cards[id]={});
-  if((k==='name'||k==='text')&&v===BASE_BY_ID[id][k])delete o[k];else o[k]=v;
+  if((k==='name'||k==='text')&&BASE_BY_ID[id]&&v===BASE_BY_ID[id][k])delete o[k];else o[k]=v;
   persistReview();
+}
+const DECK_HEAD={
+  crime:['CRIME DECK','Read first: "You were arrested for ..."','Card text finishes the sentence "You were arrested for ...".\n//   Start with an -ing verb, e.g. "offering handjobs in exchange for chicken nuggets".'],
+  place:['PLACE DECK','Read second, straight after the Crime.','Card text says where it happened and follows the Crime directly.\n//   Start with at / in / on, e.g. "at a nursing home bingo night".'],
+  evidence:['EVIDENCE DECK','Read third: "You were found in possession of ..."','Card text finishes the sentence "You were found in possession of ...".\n//   Start with a / an / some, e.g. "a heavily sedated swan".'],
+  twist:['TWIST DECK','Read last: "And to make matters worse: ..."','Card text is a full sentence, usually starting with "You" and ending\n//   with a full stop, e.g. "You were stone-cold sober. Every test came back clean."']
+};
+/* Rebuild a deck file's text from the current cards, with Cards-tab edits applied and cut cards commented out.
+   With no edits it reproduces the file in the cards folder (tools/smoke-test.js checks this). */
+function deckFileText(f){
+  const line=c=>(c.status==='cut'?'# CUT  ':'')+c.id+' | '+c.name+' | '+c.text+(c.qty>1?' | x'+c.qty:'');
+  const block=k=>`PleadTheFilth.deck("${k}", \`\n${allCards().filter(c=>c.deck===k).map(line).join('\n')}\n\`);\n`;
+  if(f==='special')return `// ===================================================================
+// PLEAD THE FILTH: SPECIAL CARDS
+// The Gavel and the Plea Bargain. These are rules cards, not scenarios.
+// ===================================================================
+//
+// HOW TO EDIT THIS FILE
+// - Same format as the deck files:   ID | Card name | Card text
+// - An optional last column sets how many copies are printed, written
+//   as x and a number, e.g. "| x6". Without it a card is printed once.
+// - Don't use the | or \` characters inside a card.
+// - The game expects exactly one "gavel" card and one "bargain" card.
+//   Change their wording freely, but don't add more.
+//
+// Save this file and reload the game to see your changes.
+
+${block('gavel')}
+${block('bargain')}`;
+  const h=DECK_HEAD[f];
+  return `// ===================================================================
+// PLEAD THE FILTH: ${h[0]}
+// ${h[1]}
+// ===================================================================
+//
+// HOW TO EDIT THIS FILE
+// - One card per line, between the two lines that hold a backtick (\`).
+// - Each line is:   ID | Card name | Card text
+// - To add a card, add a line anywhere in the list. You can leave the ID
+//   off ("Card name | Card text") and the game numbers it for you.
+// - To take a card out without deleting it, put # at the start of its line.
+// - Don't change an existing card's ID: its review status is stored by ID.
+// - Don't use the | or \` characters inside a card.
+// - ${h[2]}
+// - The printed game holds ${DECK_CAP} cards per deck. You can keep more here while
+//   testing; the Cards tab shows how many each deck is over.
+//
+// Save this file and reload the game to see your changes.
+
+${block(f)}`;
+}
+function ioFill(){
+  const f=$('#io-format').value;
+  $('#io-text').value=f==='json'?ioJSON():deckFileText(f);
+  $('#io-help').textContent=f==='json'
+    ?'The full card list with your edits, statuses and notes. Copy it to keep a backup or to move your review to another copy of the game. To import, paste a backup here and apply it.'
+    :'This deck with your Cards-tab edits written in and cut cards commented out with #. To make the edits permanent, replace everything in cards/'+f+'.js with this text and save the file.';
+  $('#btn-io-apply').hidden=f!=='json';$('#io-msg').textContent='';
 }
 function ioJSON(){return JSON.stringify(allCards().map(c=>({id:c.id,deck:c.deck,name:c.name,qty:c.qty,text:c.text,status:c.status,note:c.note})),null,1)}
 
@@ -1101,7 +1142,7 @@ function actCards(a,el){
     case 'ed-status':editField(id,'status',el.dataset.v);openEditor(id);break;
     case 'ed-reset':{const o=review.cards[id]||{};delete o.name;delete o.text;persistReview();openEditor(id);break}
     case 'ed-close':dlg.close();break;
-    case 'open-io':$('#io-text').value=ioJSON();$('#io-msg').textContent='';$('#io').showModal();break;
+    case 'open-io':ioFill();$('#io').showModal();break;
     case 'io-close':$('#io').close();break;
     case 'io-copy':{const ta=$('#io-text');const done=()=>$('#io-msg').textContent='Copied.';
       try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.select();$('#io-msg').textContent='Copy was blocked. The text is selected, so press Ctrl or Cmd + C.'})}catch(e){ta.select();$('#io-msg').textContent='The text is selected. Press Ctrl or Cmd + C.'}break}
@@ -1136,6 +1177,7 @@ document.addEventListener('change',e=>{
   else if(t.id==='set-judge')setup.firstJudge=t.value;
   else if(t.id==='set-cross'){setup.cross=t.checked;setup.preset='custom'}
   else if(t.id==='set-bargain')setup.bargain=t.checked;
+  else if(t.id==='io-format'){ioFill();return}
   else if(t.dataset.name!=null){ // keep focus in the name fields: only relabel the Judge picker
     const sel=$('#set-judge');if(sel)[...sel.options].forEach(o=>{if(o.value!=='random')o.textContent=setup.names[+o.value]||'Player '+(+o.value+1)});return}
   else return;
@@ -1145,10 +1187,17 @@ $('#editor').addEventListener('close',()=>{renderCards()});
 window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
 
 /* ---------- boot ---------- */
-function start(data){
+function showLoadError(){
+  $('main').innerHTML=`<div class="panel stack" style="max-width:720px;margin-top:24px"><h2 style="margin:0">The card decks did not load</h2>
+    <ul style="margin:0;padding-left:1.2em;display:grid;gap:6px">${deckProblems.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+    <p class="note">The cards live in the <code>cards</code> folder next to this page: crime.js, place.js, evidence.js, twist.js and special.js. Fix the file named above, save it, and reload this page.</p></div>`;
+}
+async function start(data){
+  const st=await loadDecks();
+  if(!st.ready){showLoadError();return}
   if(data&&data.g){g=data.g;if(g.timer&&g.timer.running&&g.timer.endsAt<Date.now())endPlea(true)}
   if(!setup.names||setup.names.length<3)setup.names=['Player 1','Player 2','Player 3'];
-  $('#anatomy-card').innerHTML=cardFace(card('C08'),{extra:
+  $('#anatomy-card').innerHTML=cardFace(card((BASE_BY_ID.C08?'C08':playable('crime')[0])),{extra:
     '<span class="pin" style="left:-4cqw;top:3cqw">1</span><span class="pin" style="left:50cqw;top:3cqw">2</span><span class="pin" style="right:-4cqw;top:3cqw">3</span>'+
     '<span class="pin" style="right:-4cqw;top:16cqw">4</span><span class="pin" style="right:-4cqw;top:36cqw">5</span><span class="pin" style="right:-4cqw;top:107cqw">6</span><span class="pin" style="right:-4cqw;bottom:2cqw">7</span>'});
   $('#backs-demo').innerHTML=PLAY_DECKS.map(k=>cardBack(k)).join('');
@@ -1158,5 +1207,6 @@ function start(data){
 const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)try{hot.snapshot(()=>({g}))}catch(e){}
 if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
+window.PTF={parseDecks,deckFileText:k=>deckFileText(k)}; // used by tools/smoke-test.js
 })();
 </script>

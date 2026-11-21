@@ -64,6 +64,36 @@ async function playGame(page, { players, preset, shots }) {
   console.log('12 more games at 3-6 players finished');
   console.log('speed:', await playGame(page, { players: 3, preset: 'speed' }));
 
+  // deck files: the page's export reproduces each file exactly when nothing has been edited
+  {
+    const fs = require('fs'), path = require('path');
+    const dir = path.dirname(file);
+    await page.goto('file://' + file + '#cards');
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    for (const f of ['crime', 'place', 'evidence', 'twist', 'special']) {
+      const same = (await page.evaluate((f) => window.PTF.deckFileText(f), f)) === fs.readFileSync(path.join(dir, 'cards', f + '.js'), 'utf8');
+      console.log('export matches cards/' + f + '.js:', same);
+    }
+
+    // a copy of the game with a card added (no ID), a card commented out, and a broken file
+    const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'ptf-'));
+    fs.cpSync(dir, tmp, { recursive: true, filter: (s) => !s.includes('.git') });
+    const crime = path.join(tmp, 'cards', 'crime.js');
+    fs.writeFileSync(crime, fs.readFileSync(crime, 'utf8')
+      .replace('C02 |', '# C02 |')
+      .replace('\n`);', '\nStreaking | streaking through a funeral wearing only the casket flag\nTest Card Two | testing a second card\n`);'));
+    await page.goto('file://' + path.join(tmp, 'index.html') + '#cards');
+    console.log('added cards:', await page.locator('#deck-counts').innerText(), '| C21:', await page.locator('#open-C21').count(), '| C02 gone:', !(await page.locator('#open-C02').count()));
+    fs.writeFileSync(crime, fs.readFileSync(crime, 'utf8').replace('Streaking |', 'Streak`ing |'));
+    const before = errors.length;
+    await page.goto('file://' + path.join(tmp, 'index.html'));
+    errors.splice(before); // the deliberately broken file raises a syntax error; that is expected
+    console.log('broken file message:', (await page.locator('main').innerText()).split('\n').slice(0, 2).join(' / '));
+    fs.rmSync(tmp, { recursive: true });
+    await page.goto('file://' + file + '#play');
+  }
+
   // cards tab: edit, status, table, rulebook
   await page.click('#tab-cards');
   await page.click('#open-C07');
@@ -96,6 +126,20 @@ async function playGame(page, { players, preset, shots }) {
   await phone.waitForTimeout(800);
   await phone.screenshot({ path: out + '/phone.png', fullPage: true });
   console.log('phone overflow hearing', await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth));
+
+  // hosts that block the deck scripts (as a locked-down viewer might) fall back to reading the files as text
+  {
+    const { spawn } = require('child_process'), path = require('path');
+    const srv = spawn('python3', ['-m', 'http.server', '8765', '--bind', '127.0.0.1'], { cwd: path.dirname(file), stdio: 'ignore' });
+    await new Promise((r) => setTimeout(r, 1200));
+    const p2 = await browser.newPage();
+    p2.on('pageerror', (e) => errors.push('fallback: ' + e));
+    await p2.route('**/cards/*.js', (route) => (route.request().resourceType() === 'script' ? route.abort() : route.continue()));
+    await p2.goto('http://127.0.0.1:8765/index.html#cards');
+    await p2.waitForSelector('#open-C01', { timeout: 5000 }).catch(() => {});
+    console.log('fetch fallback cards shown:', await p2.locator('.cardbtn').count());
+    srv.kill();
+  }
 
   console.log('errors:', errors.length ? errors : 'none');
   await browser.close();
