@@ -155,7 +155,7 @@ any text editor. Nothing about the cards is stored in `index.html` or `src/` any
 | `cards/special.js` | The Gavel (G01) and the Plea Bargain (B01, printed six times) |
 
 Each file starts with a comment explaining how to edit it, then calls
-`PleadTheFilth.deck("<deck>", \`...\`)` with one card per line:
+``PleadTheFilth.deck("<deck>", `...`)`` with one card per line:
 
 ```
 C05 | Solicitation | offering handjobs in exchange for chicken nuggets
@@ -369,13 +369,11 @@ files (the path a locked-down host would take).
 | `a1a4ade` | First playable prototype: game, 87 cards, Cards review tab, full rulebook, build script, README. |
 | `49f7be9` | Added this handoff file and the Playwright smoke test. |
 | `b2a6b4b` | Owner request: hearings dealt by tapping four deck piles that flip cards down into a scene row, with an animated deal, Plea Bargain redraws from the deck, and the smoke test updated to deal in random order. |
-
 | `bf41a52` | Handoff updated for tap-to-deal; work log added. |
-| "Move the cards into one editable file per deck" | Owner request: all card wording moved out of the page into `cards/crime.js`, `place.js`, `evidence.js`, `twist.js` and `special.js`. IDs optional for new cards, `#` to comment cards out, deck-file export in the Cards tab, live counts and over-20 warnings, load-error page, build script now checks the decks, smoke test covers the deck files, README rewritten for editing cards, `CLAUDE.md` added. |
+| `7e191ca` | Owner request: all card wording moved out of the page into `cards/crime.js`, `place.js`, `evidence.js`, `twist.js` and `special.js`. IDs optional for new cards, `#` to comment cards out, deck-file export in the Cards tab, live counts and over-20 warnings, load-error page, build script now checks the decks, smoke test covers the deck files, README rewritten for editing cards, `CLAUDE.md` added. |
 
-Rows without a hash are named by their commit subject; find them with `git log`. The hosted artifact
-was republished with the deck files after the latest change (version 3), so it matches the
-repository.
+The hosted artifact was republished with the deck files after `7e191ca` (version 3), so it matches
+the repository.
 
 ## 11. Repository state
 
