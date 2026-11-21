@@ -33,6 +33,14 @@ front of a judge. Once everyone has had a turn, players vote for the funniest an
    functions and dark humor are on the cards themselves.
 3. **Deck structure:** Crime, Place, Evidence, Twist.
 
+### Requests the owner made after the first version
+
+1. **Push to GitHub.** Done; see section 11.
+2. **A handoff file for other AI agents.** This file. Keep it current whenever the project changes.
+3. **Tap-to-deal hearings.** "A deck above the scene that the user has to tap, and each card turns
+   over to the row below it, so the user feels like they are painting the scene." Done; see
+   section 4, "How a hearing is dealt".
+
 ### Deliverables the owner asked for
 
 Core pitch and win condition, full rules, complete card list as a table, balance check, example
@@ -104,11 +112,26 @@ Everything is in one HTML page with three tabs.
 
 | Tab | What it does |
 | --- | --- |
-| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets, rounds, plea timer, first Judge, and toggles for cross-examination and Plea Bargains. Hearings are dealt by hand: four deck piles sit above an empty four-slot "scene" row, and tapping a deck (in any order) flips its card down into its slot while the charge sentence fills in. Plea Bargain swap (the slot empties and the deck is tapped again for the replacement), countdown timer, cross-examination prompt. Sequential ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average plea length, tied rounds, Plea Bargains used, per-round history. |
+| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets, rounds, plea timer, first Judge, and toggles for cross-examination and Plea Bargains. Hearings dealt by hand (see below), Plea Bargain swap, countdown timer with pause, cross-examination prompt. Sequential ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average plea length, tied rounds, Plea Bargains used, per-round history. |
 | **Cards** | All 87 cards drawn in their print layout. Open a card to edit its name and text, set a status (Unreviewed, Approved, Needs work, Cut) and add a note. Cut cards are left out of play. Filters by deck and status, a table view with per-card stats (drawn, acquitted, swapped out), a combo tester that deals random charge sheets, JSON export and import, and 9-up print sheets with backs (standalone copy only). |
 | **Rulebook** | The eight deliverables. The card table in section 3 is generated from live card data, so it reflects edits. |
 
 During play, each revealed card has a **Flag for rewrite** button that sets its status to Needs work.
+
+### How a hearing is dealt
+
+The owner asked for dealing to feel like **painting the scene**, so each hearing is built by hand:
+
+1. Four face-down deck piles (Crime, Place, Evidence, Twist) sit in a row at the top, each marked
+   "Tap to draw" with a red outline.
+2. Below them, under a "The scene" divider, are four empty dashed slots in reading order.
+3. Tapping a deck flips its top card over and animates it down into its slot. The deck then dims and
+   shows how many cards are left. Decks can be tapped **in any order**.
+4. The charge sentence under the scene starts as blanks (`[Crime]`, `[Place]` ...) and each part
+   fills in as its card lands.
+5. Once all four are dealt, the Defendant can start the plea or use a Plea Bargain. A Plea Bargain
+   empties the chosen slot and relights that one deck, which is tapped to draw the replacement.
+6. When the plea starts, the decks are hidden and only the scene, sentence and timer remain.
 
 ### Where things are
 
@@ -145,15 +168,26 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
   `card(id)` merges base and overrides.
 - **Game state** is the single object `g`. Key fields: `names`, `n`, `rounds`, `plea`, `cross`,
   `round`, `judge`, `order`, `turn`, `sheets`, `votes`, `voters`, `scores`, `bargains`, `decks`,
-  `discards`, `history`, `pleaLog`,
-  `sheets[player] = { cards: [4 ids], up: [4 booleans, true once that card is dealt], swapped }`, `phase` (`hearing`, `vote`, `tie`, `reveal`, `final`), `step`
+  `discards`, `history`, `pleaLog`, `phase` (`hearing`, `vote`, `tie`, `reveal`, `final`), `step`
   within a hearing (`charges`, `ready`, `swap`, `plea`, `after`), `showdown`, `champion`.
+- **A charge sheet** is `g.sheets[player] = { cards: [4 card ids], up: [4 booleans], swapped }`.
+  All four cards are drawn from the decks when the hearing starts; `up[i]` turns true when the
+  player taps deck `i` and that card is dealt into the scene. `step` stays `charges` until every
+  `up` is true, then becomes `ready`. A Plea Bargain replaces `cards[i]`, sets `up[i]` back to
+  false and returns `step` to `charges`. Games saved before this change used a `flipped` count;
+  `viewHearing` converts it to `up` on load.
 - **Game flow functions:** `startGame`, `startRound`, `startHearing`, `endPlea`, `nextHearing`,
   `castVote`, `tally`, `resolve`, `nextRound`, `startShowdown`. Tie logic is in `tally`.
 - **Rendering:** each view is a function returning an HTML string (`viewSetup`, `viewHearing`,
   `viewVote`, `viewTie`, `viewReveal`, `viewFinal`), set by `renderPlay`. Card faces and backs come
-  from `cardFace` and `cardBack`. `animateDraw` moves a dealt card from its deck to its scene slot. Events use delegation on `data-action` attributes, handled in
-  `act` (game) and `actCards` (Cards tab).
+  from `cardFace` and `cardBack`. Events use delegation on `data-action` attributes, handled in
+  `act` (game) and `actCards` (Cards tab). A deck pile carries `data-action="flip"` and
+  `data-i` (0 Crime, 1 Place, 2 Evidence, 3 Twist).
+- **The deal animation** is `animateDraw(i)`, called by `renderPlay` after it redraws the hearing.
+  The new card is rendered in its slot inside a `.flipper` holding its face and a temporary back.
+  The Web Animations API moves it from the deck's position and size to the slot while rotating it
+  from back to face (640 ms), then removes the temporary back. With reduced motion, or without
+  `Element.animate`, the card simply appears.
 - **Storage:** `localStorage` keys `ptf-review`, `ptf-setup` and `ptf-game` (a game in progress can
   be resumed). When the page runs as an artifact, review state is also written to the page database
   at document `review/cards`; the newer of the two copies wins on load. In the standalone copy
@@ -169,6 +203,9 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
 - In the artifact viewer, `alert`, `confirm`, `prompt`, `window.print` and file downloads do
   nothing. Confirmations are built into the page (see the two-step End game button).
 - Cards keep their own paper and ink colors in dark theme on purpose. They are physical objects.
+- The deal animation measures positions after a full re-render. If the hearing view's markup
+  changes, keep the `id="deck-<deck>"` piles and `id="slot-<i>"` slots or `animateDraw` falls back
+  to no animation.
 
 ## 6. Build and test
 
@@ -177,9 +214,12 @@ node tools/build.mjs                                   # regenerate index.html
 node tools/smoke-test.js "$PWD/index.html" /tmp/shots   # scripted playthroughs + screenshots
 ```
 
-The smoke test needs Playwright with Chromium. It plays 14 full games at 3 to 6 players with random
-votes, exercises the Plea Bargain, the Cards editor, the table view and the rulebook table, checks
-for horizontal overflow at phone width, and reports any page errors.
+The smoke test needs Playwright with Chromium. It plays 14 full games at 3 to 6 players, tapping the
+decks in a random order and voting at random. It exercises the Plea Bargain redraw, the Cards
+editor, the table view and the rulebook table, checks for horizontal overflow at phone width, and
+reports any page errors. It also saves screenshots, including the hearing before dealing
+(`deal-start.png`), a card mid-flight (`deal-mid.png`), two cards dealt (`deal-two.png`) and a
+half-dealt hearing on a phone in dark theme (`phone-dealing.png`).
 
 ## 7. Verified and not verified
 
@@ -188,7 +228,9 @@ for horizontal overflow at phone width, and reports any page errors.
 - 14 scripted games at 3 to 6 players, across speed, standard and long presets, all ran to a winner
   with no script errors. This covers mechanics only.
 - Layout checked at desktop width in light theme and phone width (390 px) in dark theme, with no
-  horizontal overflow on any tab.
+  horizontal overflow on any tab, including a half-dealt hearing.
+- Tap-to-deal: decks drawn in random order across all 14 games, and Plea Bargain redraws, all
+  reached the plea correctly.
 - Deck counts: 20 per scenario deck, 87 cards in total.
 
 **Not verified**
@@ -199,14 +241,17 @@ for horizontal overflow at phone width, and reports any page errors.
 - **Printed output.** The print sheets have not been test-printed. Front and back alignment for
   double-sided printing is untested.
 - **The title.** No trademark search has been done.
+- **How the deal animation feels.** It has only been checked from still screenshots taken mid-move,
+  not watched in motion or tried on a touch screen.
 
 ## 8. Known gaps
 
 - The **strike rule** is in the rulebook but has no button in the app. A struck card currently has
   to be handled with a Plea Bargain or by ending the hearing.
-- The app lets the four decks be drawn in **any order**. The physical rule is Crime, Place, Evidence,
-  Twist. The owner asked for the tap-each-deck dealing; whether the rulebook should allow any order
-  is undecided.
+- **Open decision: dealing order.** The app lets the four decks be drawn in any order, but the
+  rulebook (section 2) still says the Prosecutor turns them over Crime, Place, Evidence, Twist. The
+  owner has been asked whether to lock the app to that order or loosen the rule, and has not
+  answered. Until they do, leave both as they are.
 - The app uses **sequential ballots** with a pass-the-device step. The physical rule is simultaneous
   pointing. The outcomes are the same but the feel differs.
 - Several tuning options in the playtest plan are **not settings in the app**: two cross-examination
@@ -226,11 +271,23 @@ for horizontal overflow at phone width, and reports any page errors.
    `src/plead-the-filth.html`. Rebuild and commit.
 3. Replace cut cards so each deck is back to 20, following the content rules in section 3.
 4. Adjust rules from the playtest numbers. Change one number per game.
-5. Close whichever gaps in section 8 the owner cares about. The strike button is the most likely.
-6. Before print: trademark check on the title, card art, a test print of the sheets, and a decision
+5. Settle the dealing-order decision in section 8 and make the app and rulebook agree.
+6. Close whichever other gaps in section 8 the owner cares about. The strike button is the most
+   likely.
+7. Before print: trademark check on the title, card art, a test print of the sheets, and a decision
    on a print service and its bleed requirements (the layout spec assumes 0.125 inch bleed).
 
-## 10. Repository state
+## 10. Work log
+
+| Commit | Change |
+| --- | --- |
+| `a1a4ade` | First playable prototype: game, 87 cards, Cards review tab, full rulebook, build script, README. |
+| `49f7be9` | Added this handoff file and the Playwright smoke test. |
+| `b2a6b4b` | Owner request: hearings dealt by tapping four deck piles that flip cards down into a scene row, with an animated deal, Plea Bargain redraws from the deck, and the smoke test updated to deal in random order. |
+
+The hosted artifact was republished after `b2a6b4b` (version 2), so it matches the repository.
+
+## 11. Repository state
 
 - Repository: `sethwalton/CardGame`
 - Branch: `ccr-48a8fd81-4ui757`. The repository was empty before this work, so this is the only
