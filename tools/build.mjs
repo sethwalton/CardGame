@@ -10,7 +10,7 @@ import vm from 'node:vm';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const FILES = ['crime', 'place', 'evidence', 'twist', 'special'];
-const DECKS = { crime: 'C', place: 'P', evidence: 'E', twist: 'T', gavel: 'G', bargain: 'B' };
+const DECKS = { crime: 'C', place: 'P', evidence: 'E', twist: 'T', gavel: 'G' };
 const CAP = 20;
 const errors = [];
 const warnings = [];
@@ -64,11 +64,11 @@ for (const deck of ['crime', 'place', 'evidence', 'twist']) {
     warnings.push(`${c.id} is ${c.text.length} characters long. Cards read best under 90.`);
   }
 }
-for (const deck of ['gavel', 'bargain']) {
+for (const deck of ['gavel']) {
   if (cards.filter((c) => c.deck === deck).length !== 1) errors.push(`there should be exactly one "${deck}" card`);
 }
 
-console.log(['crime', 'place', 'evidence', 'twist', 'gavel', 'bargain'].map((d) => `${d} ${count(d)}`).join(', '));
+console.log(['crime', 'place', 'evidence', 'twist', 'gavel'].map((d) => `${d} ${count(d)}`).join(', '));
 for (const w of warnings) console.log('warning: ' + w);
 if (errors.length) {
   for (const e of errors) console.error('error: ' + e);

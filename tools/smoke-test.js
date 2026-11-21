@@ -2,6 +2,7 @@
 // Usage: node tools/smoke-test.js <absolute path to index.html> <existing folder for screenshots>
 const { chromium } = require('playwright');
 const [file, out] = process.argv.slice(2);
+let showdowns = 0;
 
 async function playGame(page, { players, preset, shots }) {
   await page.goto('file://' + file + '#play');
@@ -12,42 +13,50 @@ async function playGame(page, { players, preset, shots }) {
   if (shots) await page.screenshot({ path: out + '/setup.png', fullPage: true });
   await page.click('#btn-start');
   if (shots) {
-    await page.screenshot({ path: out + '/deal-start.png', fullPage: true });
+    await page.screenshot({ path: out + '/turn-pass.png', fullPage: true });
+    await page.click('#btn-begin');
     await page.click('#deck-evidence');
     await page.waitForTimeout(260);
     await page.screenshot({ path: out + '/deal-mid.png', fullPage: true });
     await page.waitForTimeout(700);
-    await page.click('#deck-crime');
+    for (const k of ['crime', 'place', 'crime']) { await page.click('#deck-' + k); await page.waitForTimeout(120); }
     await page.waitForTimeout(800);
-    await page.screenshot({ path: out + '/deal-two.png', fullPage: true });
+    await page.screenshot({ path: out + '/deal-some.png', fullPage: true });
   }
-  let guard = 0, swapped = false, shotHearing = false, shotReveal = false;
+  const pick = async (sel) => { const l = page.locator(sel); const n = await l.count(); if (!n) return false; await l.nth(Math.floor(Math.random() * n)).click(); return true; };
+  let guard = 0, shot = {};
+  const snap = async (name) => { if (shots && !shot[name]) { shot[name] = 1; await page.screenshot({ path: out + '/' + name + '.png', fullPage: true }); } };
   for (;;) {
-    if (++guard > 3000) throw new Error('game did not finish');
+    if (++guard > 5000) throw new Error('game did not finish');
     const has = (s) => page.locator(s).count();
     if (await has('#btn-rematch')) break;
-    if (await has('.deck.is-live')) { // draw in a random order
-      const live = page.locator('.deck.is-live');
-      await live.nth(Math.floor(Math.random() * (await live.count()))).click(); continue;
+    const audit = await page.evaluate(() => window.PTF.cardAudit());
+    if (audit && (audit.dup.length || audit.missing.length)) throw new Error('cards lost or duplicated: ' + JSON.stringify(audit));
+    if (await has('#btn-begin')) { await page.click('#btn-begin'); continue; }
+    if (await has('.deck.is-live')) { // deal in a random order, sometimes finishing with "Deal the rest"
+      if (Math.random() < 0.15) await page.click('#btn-deal-rest'); else await pick('.deck.is-live');
+      continue;
     }
-    if (await has('#btn-bargain') && !swapped) { swapped = true; await page.click('#btn-bargain'); await page.click('#btn-swap-evidence'); continue; }
-    if (await has('#btn-plea')) {
-      if (shots && !shotHearing) { shotHearing = true; await page.screenshot({ path: out + '/hearing.png', fullPage: true }); }
-      await page.click('#btn-plea'); continue;
+    if (await has('[data-action="keep"]')) { await snap('choose'); await pick('[data-action="keep"]'); continue; }
+    if (await has('#btn-keep-as-is')) {
+      await snap('swap');
+      if (Math.random() < 0.6) await pick('[data-action="swap-card"]'); else await page.click('#btn-keep-as-is');
+      continue;
     }
-    if (await has('#btn-rest')) { await page.click('#btn-rest'); continue; }
-    if (await has('#btn-next')) { await page.click('#btn-next'); continue; }
+    if (await has('[data-action="pick"]')) { await snap('pick'); await pick('[data-action="pick"]'); continue; }
+    if (await has('#btn-end-turn')) { await snap('locked'); await page.click('#btn-end-turn'); continue; }
+    if (await has('#btn-reveal')) { await page.click('#btn-reveal'); await page.waitForTimeout(shots && !shot.trial ? 1200 : 0); await snap('trial'); continue; }
+    if (await has('#btn-next-case')) { await page.click('#btn-next-case'); continue; }
+    if (await has('#btn-to-vote')) { await page.click('#btn-to-vote'); continue; }
     if (await has('#btn-ballot')) { await page.click('#btn-ballot'); continue; }
-    const votes = page.locator('[data-action="vote"],[data-action="rule"]');
-    const n = await votes.count();
-    if (n) { await votes.nth(Math.floor(Math.random() * n)).click(); continue; }
-    if (await has('#btn-next-round')) {
-      if (shots && !shotReveal) { shotReveal = true; await page.screenshot({ path: out + '/reveal.png', fullPage: true }); }
-      await page.click('#btn-next-round'); continue;
-    }
-    if (await has('#btn-showdown')) { await page.click('#btn-showdown'); continue; }
+    if (await has('[data-action="vote"],[data-action="rule"]')) { await snap('ballot'); await pick('[data-action="vote"],[data-action="rule"]'); continue; }
+    if (await has('#btn-next-round')) { await snap('reveal'); await page.click('#btn-next-round'); continue; }
+    if (await has('#btn-showdown')) { showdowns++; await page.click('#btn-showdown'); continue; }
     throw new Error('stuck: ' + (await page.locator('#view-play').innerText()).slice(0, 300));
   }
+  // every hand, trophy and card in play must be a distinct card from its deck
+  const bad = await page.evaluate(() => document.querySelectorAll('.card__text').length === 0);
+  if (bad) throw new Error('final screen rendered no cards');
   return page.evaluate(() => document.querySelector('#view-play h1').textContent);
 }
 
@@ -61,7 +70,7 @@ async function playGame(page, { players, preset, shots }) {
   console.log('3p standard:', await playGame(page, { players: 3, preset: 'standard', shots: true }));
   await page.screenshot({ path: out + '/final.png', fullPage: true });
   for (let i = 0; i < 12; i++) await playGame(page, { players: 3 + (i % 4), preset: i % 3 ? 'standard' : 'long' });
-  console.log('12 more games at 3-6 players finished');
+  console.log('12 more games at 3-6 players finished; Supreme Court showdowns so far:', showdowns);
   console.log('speed:', await playGame(page, { players: 3, preset: 'speed' }));
 
   // deck files: the page's export reproduces each file exactly when nothing has been edited
@@ -119,13 +128,14 @@ async function playGame(page, { players, preset, shots }) {
   }
   await phone.goto('file://' + file + '#play');
   await phone.click('#btn-start');
-  for (let i = 0; i < 2; i++) await phone.locator('.deck.is-live').first().click();
+  await phone.click('#btn-begin');
+  for (let i = 0; i < 5; i++) await phone.locator('.deck.is-live').first().click();
   await phone.waitForTimeout(800);
   await phone.screenshot({ path: out + '/phone-dealing.png', fullPage: true });
-  for (let i = 0; i < 2; i++) await phone.locator('.deck.is-live').first().click();
-  await phone.waitForTimeout(800);
+  await phone.click('#btn-deal-rest');
+  await phone.click('#btn-keep-1');
   await phone.screenshot({ path: out + '/phone.png', fullPage: true });
-  console.log('phone overflow hearing', await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth));
+  console.log('phone overflow turn', await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth));
 
   // hosts that block the deck scripts (as a locked-down viewer might) fall back to reading the files as text
   {

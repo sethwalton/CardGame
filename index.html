@@ -113,6 +113,17 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink)}
 .empty{width:100%;max-width:100%;align-self:start;aspect-ratio:2.5/3.5;border:2px dashed var(--line);border-radius:10px;display:grid;place-content:center;justify-items:center;gap:6px;color:var(--muted);font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
 .empty svg{width:32px;height:32px;opacity:.6}
 .flipper{position:relative;width:100%;transform-style:preserve-3d}
+.flipper.is-turning{animation:turnover .6s cubic-bezier(.3,.7,.2,1) both}
+@keyframes turnover{from{transform:rotateY(180deg)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.flipper.is-turning{animation:none}}
+.cases{display:grid;gap:16px}
+.casefile{border:2px solid var(--line);background:var(--surface);padding:12px;display:grid;gap:10px;min-width:0}
+.casefile h3{font-size:1.25rem}
+.casefile .sheet{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:640px}
+.casefile .charge{font-size:1rem;padding:10px 14px}
+.casefile.is-kept{border-color:var(--accent)}
+.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:520px}
+.options .btn{width:100%}
 .flipper>.card{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .flipper__back{position:absolute;inset:0;transform:rotateY(180deg)}
 @media (prefers-reduced-motion:reduce){.deck.is-live{transition:none}}
@@ -278,7 +289,7 @@ textarea{min-height:92px;resize:vertical}
     <p class="note" style="max-width:70ch;margin-top:6px">Every card in the box. Open a card to reword it, approve it, mark it for a rewrite, or cut it. Cut cards are left out of the decks when you play. <span class="savestate" id="savestate"></span></p>
     <div class="panel" style="margin-top:16px">
       <div class="row" style="justify-content:space-between"><h2 style="margin:0">Combo tester</h2><button class="btn btn--sm" data-action="deal-test" id="btn-deal-test">Deal another arrest</button></div>
-      <p class="note" style="margin:6px 0 12px">One random card from each deck, read as a charge sheet. Keep dealing to check that the cards chain into a sentence.</p>
+      <p class="note" style="margin:6px 0 12px">One random card from each deck, read as a case. Keep dealing to check that the cards chain into a sentence.</p>
       <div id="test-charge" class="charge"></div>
     </div>
     <div class="toolbar">
@@ -312,9 +323,9 @@ textarea{min-height:92px;resize:vertical}
 
         <section id="r-pitch">
           <h2>1. Core idea</h2>
-          <p class="lede">Plead the Filth is a party game for 3 to 6 adults about talking your way out of the worst arrest report ever written. Each round every player is dealt a four-card charge sheet: a Crime, a Place, a piece of Evidence and a Twist. Another player reads it out like a prosecutor. You then get 60 seconds to explain yourself to the court. Every card is true, so you cannot deny anything. You can only explain it. Once everyone has pleaded, the table votes for the funniest explanation. That player is acquitted and keeps their Crime card as a trophy.</p>
-          <p><strong>Win condition:</strong> the player with the most acquittals (Crime trophies) after the last round wins. A tie for first is settled by a Supreme Court showdown.</p>
-          <p class="note">3 to 6 players · ages 18+ · 4 minutes (one speed round) to 60 minutes (long game) · 87 cards and a phone timer. "Plead the Filth" is a working title. Check it for trademark conflicts before printing.</p>
+          <p class="lede">Plead the Filth is a party game for 3 to 6 adults about building the worst arrest report ever written. A <strong>case</strong> is four cards read as one sentence: a Crime, a Place, a piece of Evidence and a Twist. On your turn you secretly deal yourself three cases, keep the one you think is the most ridiculous, and may swap one of its cards for something worse. When everyone has built a case, the court goes to trial. Every case is revealed and read out, and the players, acting as prosecutors, vote for the most outrageous one. Its owner is convicted, wins the round and keeps the Crime card for their rap sheet.</p>
+          <p><strong>Win condition:</strong> the player with the most convictions (Crime cards on their rap sheet) after the last round wins. A tie for first is settled by a Supreme Court showdown.</p>
+          <p class="note">3 to 6 players · ages 18+ · about 5 minutes (one speed round) to 60 minutes (long game) · 81 cards. "Plead the Filth" is a working title. Check it for trademark conflicts before printing.</p>
         </section>
 
         <section id="r-rules">
@@ -323,13 +334,10 @@ textarea{min-height:92px;resize:vertical}
           <ul>
             <li>80 scenario cards in four decks of 20: Crime, Place, Evidence, Twist.</li>
             <li>1 Gavel card. Whoever holds it is the Judge.</li>
-            <li>6 Plea Bargain cards, one per player.</li>
-            <li>A timer. Any phone works.</li>
           </ul>
           <h3>Setup</h3>
           <ol>
             <li>Shuffle each deck on its own. Put the four decks face down in a row in reading order: Crime, Place, Evidence, Twist. Leave room for a discard pile next to each.</li>
-            <li>Give every player one Plea Bargain card, face up.</li>
             <li>The player who was most recently pulled over, fined or arrested takes the Gavel and is the first Judge. If nobody will admit to anything, the youngest player takes it.</li>
             <li>Agree how many rounds to play, using the table below.</li>
           </ol>
@@ -342,32 +350,35 @@ textarea{min-height:92px;resize:vertical}
               <tr><td>6</td><td>3 rounds</td><td>4 rounds</td><td>40 / 55 min</td></tr>
             </tbody>
           </table></div>
-          <p><strong>Speed trial:</strong> one round, 30-second pleas, no cross-examination. About 4 minutes with three players.</p>
+          <p><strong>Speed trial:</strong> one round, two cases per turn, and a blind swap (see step 3 of a turn). About 5 minutes with three players.</p>
 
-          <h3>The three roles</h3>
+          <h3>Words used in these rules</h3>
           <dl>
-            <dt>Defendant</dt><dd>The player whose turn it is. Everyone is the Defendant once per round.</dd>
-            <dt>Prosecutor</dt><dd>The player on the Defendant's left. Deals and reads the charges, runs the timer, and asks one question afterwards.</dd>
-            <dt>Judge</dt><dd>Whoever holds the Gavel. The Judge still pleads like everyone else, but goes last, calls the vote, and breaks ties.</dd>
+            <dt>Case</dt><dd>One card from each deck, read in order as a sentence: "You were arrested for <em>[Crime]</em> <em>[Place]</em>. You were found in possession of <em>[Evidence]</em>. And to make matters worse: <em>[Twist]</em>."</dd>
+            <dt>Judge</dt><dd>Whoever holds the Gavel. The Judge builds a case like everyone else, but takes their turn last, calls the vote and breaks ties.</dd>
+            <dt>Prosecutors</dt><dd>Everyone, during the trial. Each player reads out the case of the player on their right, and every player votes.</dd>
           </dl>
 
           <h3>A round</h3>
-          <p>A round is one hearing per player, then one vote. The player on the Judge's left is the first Defendant. Play passes to the left, so the Judge pleads last.</p>
-          <p><strong>Each hearing has four steps.</strong></p>
-          <ol>
-            <li><strong>The charges.</strong> The Prosecutor takes the top card of each deck and turns them over one at a time, reading them out as one sentence: "You were arrested for <em>[Crime]</em> <em>[Place]</em>. You were found in possession of <em>[Evidence]</em>. And to make matters worse: <em>[Twist]</em>." The four cards stay face up in front of the Defendant. This is their charge sheet.</li>
-            <li><strong>Plea Bargain (optional).</strong> Before the timer starts, the Defendant may turn their Plea Bargain card face down to throw out one card from the charge sheet and draw a replacement from the same deck. The replacement stays, even if it is worse. Each player can do this once per game.</li>
-            <li><strong>The plea.</strong> The Prosecutor starts a 60-second timer. The Defendant explains to the court why they are innocent, justified or badly misunderstood. Everything on the charge sheet is true and it all happened. You may not deny a card. You may only explain it. You can stop early by saying "I rest my case." When the timer runs out, finish your sentence and stop.</li>
-            <li><strong>Cross-examination.</strong> The Prosecutor asks one follow-up question. The Defendant answers in a sentence or two. There are no follow-ups to the follow-up.</li>
-          </ol>
-          <p><strong>Order in the court.</strong> Nobody interrupts a plea. Laughing, groaning and booing are encouraged.</p>
+          <p>A round has two phases. First every player builds a case, one turn each. Then all the cases go on trial together.</p>
 
-          <h3>The verdict</h3>
+          <h3>Phase one: building cases</h3>
+          <p>The player on the Judge's left takes the first turn. Play passes to the left, so the Judge goes last. Keep your cards hidden from the other players the whole time.</p>
           <ol>
-            <li>When every player has pleaded, the Judge counts "three, two, one, verdict." On "verdict" every player points at the Defendant whose plea was the funniest. You cannot point at yourself.</li>
-            <li>The Defendant with the most votes is found <strong>Not Guilty</strong>. They keep their Crime card face up in front of them as a trophy worth 1 point, and discard their other three cards.</li>
-            <li>Everyone else is guilty. Their four cards go to the discard piles.</li>
-            <li>The acquitted player takes the Gavel and is the Judge for the next round. If they already hold it, they keep it.</li>
+            <li><strong>Deal three cases.</strong> Deal yourself three rows of four cards face down in front of you, one card from each deck per row. Each row is a case. Look at your rows without showing anyone.</li>
+            <li><strong>Keep one case.</strong> Pick up the row you think is the most ridiculous. You must keep it exactly as dealt: you cannot move cards between rows. The other two rows go face down onto their discard piles.</li>
+            <li><strong>Swap one card (optional).</strong> You may discard one card from your case, look at the top three cards of the same deck, and keep the one you like best. The other two go onto the discard pile. You cannot get the discarded card back.</li>
+            <li><strong>Lock it in.</strong> Hold your case face down. Your turn is over. Do not show it to anyone until the trial.</li>
+          </ol>
+
+          <h3>Phase two: the trial</h3>
+          <ol>
+            <li>When every player has built a case, the trial begins with the player on the Judge's left and goes left.</li>
+            <li>Each player in turn lays their case face up. The player on their left reads it out as one sentence, like a prosecutor reading the charges. The owner offers no defence. Laughing, groaning and booing are encouraged.</li>
+            <li>When every case has been read, the Judge counts "three, two, one, verdict." On "verdict" every player points at the most ridiculous case. You cannot point at your own.</li>
+            <li>The case with the most votes is found <strong>Guilty</strong>. Its owner wins the round and keeps the Crime card face up in front of them, on their rap sheet. It is worth 1 point. The other three cards of that case are discarded.</li>
+            <li>Everyone else discards their whole case.</li>
+            <li>The convicted player takes the Gavel and is the Judge for the next round. If they already hold it, they keep it.</li>
           </ol>
 
           <h3>Ties in a vote</h3>
@@ -375,29 +386,28 @@ textarea{min-height:92px;resize:vertical}
 
           <h3>What each card does</h3>
           <dl>
-            <dt>Crime (20 cards)</dt><dd>What you did. Read first, after "You were arrested for". The only card worth points: the acquitted player keeps theirs as a 1-point trophy.</dd>
+            <dt>Crime (20 cards)</dt><dd>What you did. Read first, after "You were arrested for". The only card worth points: the round's winner keeps theirs on their rap sheet as 1 point.</dd>
             <dt>Place (20 cards)</dt><dd>Where it happened. Read straight after the Crime so the two form one phrase.</dd>
             <dt>Evidence (20 cards)</dt><dd>What the police found on you. Read after "You were found in possession of".</dd>
             <dt>Twist (20 cards)</dt><dd>The detail that makes it worse. Read last, after "And to make matters worse".</dd>
-            <dt>The Gavel (1 card)</dt><dd>Marks the Judge. The Judge pleads last, calls the vote, and breaks ties, but never in their own favour. It passes to each round's winner, which makes it a small handicap on whoever is ahead.</dd>
-            <dt>Plea Bargain (6 cards)</dt><dd>Once per game, before your timer starts, swap one card of your charge sheet for a new one from the same deck. Turn the Plea Bargain face down when used.</dd>
+            <dt>The Gavel (1 card)</dt><dd>Marks the Judge. The Judge builds last, calls the vote, and breaks ties, but never in their own favour. It passes to each round's winner, which makes it a small handicap on whoever is ahead.</dd>
           </dl>
-          <p><strong>Strike it from the record.</strong> This is a filthy game and some cards will land badly with some tables. Any player can ask for any card to be struck at any time, with no explanation needed. Discard it and draw a replacement. This does not use a Plea Bargain.</p>
-          <p><strong>Empty deck.</strong> If a deck runs out, shuffle its discard pile to make a new one. Trophies stay with their owners.</p>
+          <p><strong>Strike it from the record.</strong> This is a filthy game and some cards will land badly with some tables. Any player can ask for any card to be struck at any time, with no explanation needed. Discard it and replace it with the top card of the same deck. This does not count as your swap.</p>
+          <p><strong>Empty deck.</strong> If a deck runs out, shuffle its discard pile to make a new one. Rap sheets stay with their owners.</p>
 
           <h3>End of the game and scoring</h3>
-          <p>The game ends after the agreed number of rounds. Each Crime trophy is 1 point. Most points wins.</p>
+          <p>The game ends after the agreed number of rounds. Each Crime card on your rap sheet is 1 point. Most points wins.</p>
           <h3>Tiebreaker: the Supreme Court</h3>
           <ol>
-            <li>The players tied for first are the finalists. Each gets a fresh charge sheet and a 30-second plea, starting with the finalist nearest the Judge's left. There are no Plea Bargains and no cross-examination.</li>
-            <li>With two finalists, only the other players vote. With three or more finalists, everyone votes, for a finalist other than themself.</li>
+            <li>The players tied for first are the finalists. Each takes one more turn as normal, starting with the finalist nearest the Judge's left: three cases, keep one, one swap.</li>
+            <li>The finalists' cases go on trial as normal. With two finalists, only the other players vote. With three or more finalists, everyone votes, for a finalist other than themself.</li>
             <li>A tied vote is broken by the Judge in the usual way. The winner of the showdown wins the game.</li>
           </ol>
         </section>
 
         <section id="r-cards">
           <h2>3. Complete card list</h2>
-          <p><span id="count-line">87 cards: four decks of 20, one Gavel and six Plea Bargains.</span> The cards are kept in the <code>cards</code> folder, one file per deck, and this table always shows the current wording, including any edits made in the Cards tab.</p>
+          <p><span id="count-line">81 cards: four decks of 20 and one Gavel.</span> The cards are kept in the <code>cards</code> folder, one file per deck, and this table always shows the current wording, including any edits made in the Cards tab.</p>
           <div class="scroll" id="rules-table"></div>
         </section>
 
@@ -405,22 +415,23 @@ textarea{min-height:92px;resize:vertical}
           <h2>4. Balance check</h2>
           <h3>Why no card or strategy dominates</h3>
           <ul>
-            <li><strong>Cards are prompts, not powers.</strong> Points only come from votes. No card scores, blocks or steals, so there is nothing to draft or hoard. Four independent decks give <span id="combo-count">160,000</span> possible charge sheets, so nobody can prepare material.</li>
-            <li><strong>Hard draws have an escape.</strong> The Plea Bargain lets each player fix one bad card per game. It is deliberately a single use, so choosing when to spend it is a real decision.</li>
-            <li><strong>The leader carries the Gavel.</strong> The last winner is the Judge, and the Judge cannot win a tie. With three players voting at random, the Judge wins about 25% of rounds and the other two about 37.5% each. In return the Judge pleads last, which is the best seat in a voting game. The net effect is a gentle catch-up rule.</li>
+            <li><strong>Cards are prompts, not powers.</strong> Points only come from votes. No card scores, blocks or steals, so there is nothing to draft or hoard. Four independent decks give <span id="combo-count">160,000</span> possible cases.</li>
+            <li><strong>Everyone gets the same choices.</strong> Each turn you see three cases and, with the swap, three more options for one card. A bad draw costs less than in a one-case game, because you choose the best of three and can fix its weakest card.</li>
+            <li><strong>Cases stay hidden until the trial.</strong> Nobody can see another case and react to it, so going earlier or later in a round gives no information advantage.</li>
+            <li><strong>The leader carries the Gavel.</strong> The last winner is the Judge, and the Judge cannot win a tie. With three players voting at random, the Judge wins about 25% of rounds and the other two about 37.5% each. Building last gives no advantage, so this is a plain catch-up rule.</li>
             <li><strong>Voting is simultaneous.</strong> Pointing on a count stops players from piling onto whoever is already winning the vote.</li>
           </ul>
           <h3>Likely problem spots</h3>
           <ul>
-            <li><strong>One funny friend wins everything.</strong> This is true of every game in the genre. The Gavel handicap softens it. If it is still lopsided, see the playtest knobs.</li>
-            <li><strong>Vote trading at three players.</strong> Two players can agree never to vote for the leader. Simultaneous pointing makes this awkward but not impossible. A secret ballot does not fix it either. Treat it as a table-manners issue.</li>
+            <li><strong>The cards carry all the humour.</strong> With no spoken defence, a round is only as funny as the cases on the table. Weak cards matter much more than before, and so does how the four decks chain into a sentence. This is the first thing to watch in playtesting.</li>
+            <li><strong>Waiting for your turn.</strong> Turns are private and one at a time, so with six players you wait through five turns before the trial. If this drags, try the simultaneous building variant in the playtest plan.</li>
+            <li><strong>Cards repeat quickly.</strong> Each turn uses three to six cards from each 20-card deck. At five or six players a single round goes through a whole deck, so the same card can show up twice in one trial. Fewer cases per turn, or a blind swap, slows this down.</li>
+            <li><strong>Slow turns.</strong> Comparing three cases and then three swap options can take a while for some players. Watch the average turn time on the end screen.</li>
+            <li><strong>One player wins everything.</strong> A player with a better eye for the cards can run away with it. The Gavel handicap softens this. If it is still lopsided, see the playtest knobs.</li>
+            <li><strong>Vote trading at three players.</strong> Two players can agree never to vote for the leader. Simultaneous pointing makes this awkward but not impossible. Treat it as a table-manners issue.</li>
             <li><strong>The Gavel may feel like a punishment.</strong> A Judge who ties loses every time. If playtesters resent it, pass the Gavel to the left each round instead of to the winner.</li>
-            <li><strong>Cards that bring their own prop.</strong> Some Crimes already contain an object (the dildo, the bouncy castle, the megaphone). With an Evidence card on top, the Defendant has two props to explain. That is usually funnier, but watch whether those Crimes get bargained away more often.</li>
-            <li><strong>Twists about the arrest instead of the act.</strong> "The arresting officer is your ex" and "You shat in the back of the squad car" happen after the crime, so some players will tack them on at the end. Watch whether they get ignored.</li>
-            <li><strong>Overlaps.</strong> Two cards can say nearly the same thing, such as greasing yourself up naked while wearing only a sock. This reads as a joke in most cases. If it falls flat, the Plea Bargain covers it.</li>
+            <li><strong>Cards that bring their own prop.</strong> Some Crimes already contain an object (the dildo, the bouncy castle, the megaphone). With an Evidence card on top that is usually funnier, but watch whether those cases get kept or passed over.</li>
             <li><strong>The darkest cards.</strong> Cannibalism, the corpse and the burial kit will split tables. The strike rule exists for this. Track which cards get struck.</li>
-            <li><strong>Dead air.</strong> Sixty seconds is long for a shy player. Resting early is allowed and should be normal.</li>
-            <li><strong>Downtime at six players.</strong> A round is twelve minutes and you plead once. The Prosecutor role keeps one more person busy each turn. If six still drags, cut the plea to 45 seconds.</li>
           </ul>
         </section>
 
@@ -428,35 +439,35 @@ textarea{min-height:92px;resize:vertical}
           <h2>5. Example round</h2>
           <p>Three players sit clockwise: Maya, Dev, Rosa. Maya holds the Gavel, so she is the Judge. Dev is on her left and goes first.</p>
           <ol>
-            <li><strong>Dev's hearing.</strong> Rosa is on Dev's left, so she is his Prosecutor. She flips four cards and reads: "You were arrested for offering handjobs in exchange for chicken nuggets, at a nursing home bingo night. You were found in possession of a cooler labeled NOT ORGANS. And to make matters worse: you were stone-cold sober. Every test came back clean." Dev keeps all four. He explains that he is a licensed massage therapist who accepts payment in protein, that the cooler holds the nuggets, that the label was there to stop the residents asking, and that sobriety is a job requirement. Rosa asks her one question: "Why were the nuggets still warm?" Dev: "Body heat. I refuse to elaborate."</li>
-            <li><strong>Rosa's hearing.</strong> Maya is her Prosecutor. The charges: joyriding a stolen hearse with the casket still in the back, at the altar midway through her own wedding vows, in possession of six positive pregnancy tests (none of them hers), and her mom was there the whole time, cheering her on. Rosa hates the pregnancy tests. She turns her Plea Bargain face down, discards that card, and draws a new Evidence card: somebody else's prosthetic leg. She has to keep it. She pleads that the hearse was the "something borrowed."</li>
-            <li><strong>Maya's hearing.</strong> As Judge she goes last. Dev is her Prosecutor. She gets a meth lab in a bouncy castle, live on the local morning news, a heavily sedated swan, and a sexy Abraham Lincoln costume. She pleads that it was a science segment for the weather slot.</li>
-            <li><strong>The verdict.</strong> Maya counts down. Dev points at Rosa. Rosa points at Maya. Maya points at Dev. That is one vote each: a three-way tie. The Judge's vote breaks it. Maya is pointing at Dev, so Dev is Not Guilty. He keeps his Solicitation card as a trophy, everything else is discarded, and Dev takes the Gavel. In round 2 Dev is the Judge and pleads last. Rosa, on his left, goes first.</li>
+            <li><strong>Dev's turn.</strong> Dev deals himself three rows of four cards and looks at them. Case 2 is the strongest: offering handjobs in exchange for chicken nuggets, at a nursing home bingo night, a cooler labeled "NOT ORGANS", and he was stone-cold sober. He keeps it and discards the other two rows. The Twist feels flat, so he swaps it: he discards it, looks at the top three Twist cards, keeps "Your mom was there the whole time, cheering you on," and discards the other two. He hides his case.</li>
+            <li><strong>Rosa's turn.</strong> Rosa deals her three cases. Case 1 is joyriding a stolen hearse with the casket still in the back, at the altar midway through her own wedding vows, holding somebody else's prosthetic leg, and she live-streamed it to 40,000 viewers. She likes it as it is, keeps it, and does not swap.</li>
+            <li><strong>Maya's turn.</strong> As Judge she goes last. She keeps a case with a meth lab in a bouncy castle, live on the local morning news, and a heavily sedated swan. She swaps the Twist for a sexy Abraham Lincoln costume.</li>
+            <li><strong>The trial.</strong> Dev lays his case down first and Rosa, on his left, reads it out. Then Rosa's case, read by Maya. Then Maya's, read by Dev. Nobody explains anything.</li>
+            <li><strong>The verdict.</strong> Maya counts down. Dev points at Rosa. Rosa points at Maya. Maya points at Rosa. Rosa has two votes and is Guilty. She keeps her Grand Theft Hearse card on her rap sheet, discards the rest of her case, and takes the Gavel. Dev and Maya discard their cases. In round 2 Rosa is the Judge and builds last. Maya, on her left, goes first.</li>
           </ol>
         </section>
 
         <section id="r-faq">
           <h2>6. Edge cases</h2>
           <dl>
-            <dt>Can I say I did not do it?</dt><dd>No. Every card is a fact. You can claim a good reason, a misunderstanding or a noble motive, but the events happened.</dd>
-            <dt>Two of my cards contradict each other.</dt><dd>Both are true. For example, you greased yourself up naked and you were also dressed as a sexy Abraham Lincoln. Explaining how is your problem.</dd>
-            <dt>When exactly can I use my Plea Bargain?</dt><dd>After all four cards are read and before your timer starts. Not during or after your plea.</dd>
-            <dt>The replacement card is worse.</dt><dd>You keep it. There is one swap per player per game.</dd>
-            <dt>Can I bargain away the Crime?</dt><dd>Yes. Any one of the four cards.</dd>
-            <dt>Can I use a Plea Bargain in the Supreme Court?</dt><dd>No.</dd>
-            <dt>The Prosecutor asked a brutal question to sink me.</dd><dd>That is allowed. The Prosecutor is also your rival. In practice a hard question gives you the best laugh of the turn. It must be one question, not a speech.</dd>
-            <dt>Someone pointed at themself, or did not point.</dt><dd>That vote does not count. Have them point again.</dd>
+            <dt>Can I move cards between my three cases?</dt><dd>No. You keep one case exactly as dealt. Your swap is the only way to change it.</dd>
+            <dt>Do I have to swap?</dt><dd>No. The swap is optional.</dd>
+            <dt>Can I swap more than one card?</dt><dd>No. One card per turn.</dd>
+            <dt>The three swap options are all worse than my old card.</dt><dd>You still keep one of the three. The card you discarded is gone.</dd>
+            <dt>Can I swap the Crime?</dt><dd>Yes. Any one of the four cards.</dd>
+            <dt>A deck runs out while I am dealing or swapping.</dt><dd>Shuffle that deck's discard pile into a new deck and keep going. Rap sheets are never shuffled back in.</dd>
+            <dt>Can I talk about my case before the trial?</dt><dd>You can talk all you like, but you cannot show it to anyone.</dd>
+            <dt>Can I explain my case at the trial?</dt><dd>No. The case speaks for itself. Reactions are fine.</dd>
+            <dt>Someone pointed at their own case, or did not point.</dt><dd>That vote does not count. Have them point again.</dd>
             <dt>Three players, one vote each.</dt><dd>It is a three-way tie. The Judge's vote decides it, so whoever the Judge pointed at wins.</dd>
             <dt>The Judge is one of the tied players.</dt><dd>The Judge cannot win a tie. If one other player is tied with them, that player wins. If several are, the Judge's vote picks between them.</dd>
             <dt>The Judge voted for someone who is not in the tie.</dt><dd>The Judge points again, at one of the tied players other than themself. This can only happen with four or more players.</dd>
             <dt>The round's winner already holds the Gavel.</dt><dd>They keep it.</dd>
             <dt>What happens to the winner's other cards?</dt><dd>The winner keeps only the Crime. The Place, Evidence and Twist are discarded.</dd>
-            <dt>A deck ran out.</dt><dd>Shuffle that deck's discards into a new deck. Trophies are not shuffled back in.</dd>
-            <dt>The timer ran out mid-sentence.</dt><dd>Finish the sentence. Do not start another.</dd>
-            <dt>In the Supreme Court with two finalists, the jury vote is tied.</dt><dd>The Judge breaks it as usual. If the Judge is one of the finalists, the other finalist wins.</dd>
-            <dt>A card makes someone at the table uncomfortable.</dt><dd>Strike it. Discard and redraw, no questions asked, and it does not cost a Plea Bargain.</dd>
-            <dt>Someone has to leave mid-game.</dt><dd>Set their trophies aside and keep playing if three or more remain. If they held the Gavel, it goes to the player on their left.</dd>
-            <dt>Can two people play?</dt><dd>No. There is nobody left to be the jury.</dd>
+            <dt>Two finalists in the Supreme Court, and the jury vote is tied.</dt><dd>The Judge breaks it as usual. If the Judge is one of the finalists, the other finalist wins.</dd>
+            <dt>A card makes someone at the table uncomfortable.</dt><dd>Strike it. Discard it and replace it from the same deck, no questions asked. It does not use up your swap.</dd>
+            <dt>Someone has to leave mid-game.</dt><dd>Set their rap sheet aside and keep playing if three or more remain. If they held the Gavel, it goes to the player on their left.</dd>
+            <dt>Can two people play?</dt><dd>No. With only two cases there is nobody to break the deadlock: each player would always vote for the other.</dd>
           </dl>
         </section>
 
@@ -472,28 +483,28 @@ textarea{min-height:92px;resize:vertical}
               <li><strong>Lead-in line.</strong> Small caps under the band. It is the sentence starter the Prosecutor reads before the card text.</li>
               <li><strong>Effect text.</strong> The largest text on the card, bold, left aligned, about 14 pt. Keep it under 90 characters so it can be read aloud at a glance.</li>
               <li><strong>Art window.</strong> Lower quarter, about 0.85 inch tall. A spot illustration of the card, or the deck icon on a height-chart background if a card has no art yet.</li>
-              <li><strong>Name and point value.</strong> Bottom strip. Card name on the left. Crime cards also show "Worth 1 pt" on the right, because an acquitted player keeps theirs as a trophy.</li>
+              <li><strong>Name and point value.</strong> Bottom strip. Card name on the left. Crime cards also show "Worth 1 pt" on the right, because the round's winner keeps theirs on their rap sheet.</li>
             </ol>
           </div>
-          <p><strong>Backs.</strong> Each deck has its own back in the deck colour, with the icon, the deck name and the reading-order number, so the four decks can be sorted and laid out in order without turning them over. The Gavel and Plea Bargain cards use the same front layout with rules text in place of the effect text and no art window.</p>
+          <p><strong>Backs.</strong> Each deck has its own back in the deck colour, with the icon, the deck name and the reading-order number, so the four decks can be sorted and laid out in order without turning them over. The Gavel card uses the same front layout with rules text in place of the effect text and no art window.</p>
           <div class="sheet" id="backs-demo" style="max-width:560px"></div>
         </section>
 
         <section id="r-playtest">
           <h2>8. Playtest plan</h2>
-          <p>Play the first three games in this prototype with three people. The app records how long each plea and round takes, which cards are drawn, which are on winning sheets, and which get bargained away. Use the flag button on any card during play to mark it for a rewrite.</p>
+          <p>Play the first three games in this prototype with three people. The app records how long each turn and round takes, which cards are drawn, which are in the case a player keeps, which are on winning cases, and which get swapped out. Use the flag button on any card during the trial to mark it for a rewrite.</p>
           <h3>Game 1: does the turn work?</h3>
           <ul>
-            <li>Can the Prosecutor read the four cards as one sentence without stumbling?</li>
-            <li>How long do pleas actually run? If most players rest before 40 seconds, the timer is too long.</li>
-            <li>Does the cross-examination question get a laugh, or does it stall?</li>
-            <li>Does anyone forget who the Prosecutor is? If so the role needs a marker.</li>
+            <li>How long does a turn take? The end screen shows the average. Over two minutes is too slow.</li>
+            <li>Is passing the device for private turns awkward, or does the waiting feel fine?</li>
+            <li>Do players use the swap? How often is shown on the end screen.</li>
+            <li>Does the reader stumble when reading a case as one sentence?</li>
           </ul>
           <h3>Game 2: are the cards good?</h3>
           <ul>
-            <li>Which cards get a laugh just from being read? Approve those.</li>
-            <li>Which cards get ignored in the plea? Those are weak. Flag them.</li>
-            <li>Which cards get bargained away or struck? Rewrite or cut them.</li>
+            <li>Which cards get a laugh at the trial? Approve those.</li>
+            <li>Which cards are drawn often but never kept? Those are weak. The Kept column in the Cards tab's table view shows this.</li>
+            <li>Which cards get swapped out or struck? Rewrite or cut them.</li>
             <li>Is any one deck weaker than the others?</li>
           </ul>
           <h3>Game 3: is it fair?</h3>
@@ -501,26 +512,27 @@ textarea{min-height:92px;resize:vertical}
             <li>How many rounds end in a tie? More than one in three is too many.</li>
             <li>Does the Judge feel punished? Does the same player hold the Gavel all game?</li>
             <li>Is the final score close, and did the last round matter?</li>
-            <li>Did anyone hold their Plea Bargain all game? If most did, it is too precious or not needed.</li>
+            <li>Did the same card show up twice in one trial?</li>
           </ul>
           <h3>Numbers to adjust</h3>
           <div class="scroll"><table class="hist">
             <thead><tr><th>If the game is</th><th>Change</th><th>From</th><th>To</th></tr></thead>
             <tbody>
-              <tr><td>Too fast or thin</td><td>Plea timer</td><td>60 s</td><td>90 s</td></tr>
-              <tr><td></td><td>Rounds</td><td>Standard</td><td>Long game (+1 or +2 rounds)</td></tr>
-              <tr><td></td><td>Cross-examination</td><td>1 question</td><td>2 questions</td></tr>
-              <tr><td>Too slow</td><td>Plea timer</td><td>60 s</td><td>45 s, then 30 s</td></tr>
-              <tr><td></td><td>Cross-examination</td><td>On</td><td>Off</td></tr>
+              <tr><td>Too slow</td><td>Cases per turn</td><td>3</td><td>2</td></tr>
+              <tr><td></td><td>Swap</td><td>Look at 3, keep 1</td><td>Blind swap, or no swap</td></tr>
+              <tr><td></td><td>Turn order</td><td>One at a time</td><td>Everyone builds at once (simultaneous variant)</td></tr>
               <tr><td></td><td>Rounds</td><td>Standard</td><td>One fewer</td></tr>
-              <tr><td>Unfair: one player runs away</td><td>Trophy value</td><td>1 pt each</td><td>Final round worth 2</td></tr>
+              <tr><td>Too fast or thin</td><td>Cases per turn</td><td>3</td><td>4</td></tr>
+              <tr><td></td><td>Defence</td><td>None</td><td>30-second spoken defence before the vote</td></tr>
+              <tr><td></td><td>Rounds</td><td>Standard</td><td>Long game (+1 or +2 rounds)</td></tr>
+              <tr><td>Unfair: one player runs away</td><td>Rap sheet value</td><td>1 pt each</td><td>Final round worth 2</td></tr>
               <tr><td>Unfair: Judge feels punished</td><td>Gavel passes to</td><td>The winner</td><td>The player on the left</td></tr>
-              <tr><td>Unfair: bad draws decide rounds</td><td>Plea Bargains per player</td><td>1</td><td>2</td></tr>
+              <tr><td>Unfair: bad draws decide rounds</td><td>Swap</td><td>Look at 3, keep 1</td><td>Two swaps per turn</td></tr>
               <tr><td>Too many ties</td><td>Scoring</td><td>Winner takes 1</td><td>1 point per vote received</td></tr>
-              <tr><td>Cards repeat too soon</td><td>Deck size</td><td>20</td><td>Needs an expansion; 20 is the cap</td></tr>
+              <tr><td>Cards repeat too soon</td><td>Cases per turn</td><td>3</td><td>2; or an expansion, since 20 per deck is the cap</td></tr>
             </tbody>
           </table></div>
-          <p class="note">Change one number per game so you can tell what made the difference. Rounds, the plea timer, cross-examination and Plea Bargains can all be changed on the setup screen.</p>
+          <p class="note">Change one number per game so you can tell what made the difference. Rounds, cases per turn and the swap can all be changed on the setup screen. The simultaneous variant: everyone deals their three cases at the same time, then players swap one at a time going left.</p>
         </section>
       </div>
     </div>
@@ -570,23 +582,21 @@ const ICON={
   place:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 22s7-7.4 7-12.2a7 7 0 1 0-14 0C5 14.600 12 22 12 22z"/><circle cx="12" cy="9.800" r="2.4"/></svg>',
   evidence:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.500 15.500 21 21"/></svg>',
   twist:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.500 2 5 13.500h5.500L9.500 22 19 10h-5.800z"/></svg>',
-  gavel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 6 6M6.500 7.500l6 6M12 8l-8.500 8.500M13 20h8"/></svg>',
-  bargain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>'
+  gavel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m9 5 6 6M6.500 7.500l6 6M12 8l-8.500 8.500M13 20h8"/></svg>'
 };
 const DECK={
   crime:{key:'crime',name:'Crime',order:1,lead:'You were arrested for…',points:'Worth 1 pt',type:'Scenario'},
   place:{key:'place',name:'Place',order:2,lead:'Scene of the arrest',type:'Scenario'},
   evidence:{key:'evidence',name:'Evidence',order:3,lead:'Found in your possession',type:'Scenario'},
   twist:{key:'twist',name:'Twist',order:4,lead:'And to make matters worse…',type:'Scenario'},
-  gavel:{key:'gavel',name:'Gavel',order:'',lead:'Judge marker',type:'Role marker'},
-  bargain:{key:'bargain',name:'Bargain',order:'',lead:'One use per game',type:'Action'}
+  gavel:{key:'gavel',name:'Gavel',order:'',lead:'Judge marker',type:'Role marker'}
 };
 const PLAY_DECKS=['crime','place','evidence','twist'];
 /* The cards live in cards/*.js, one file per deck, written for people to edit.
    Each file calls PleadTheFilth.deck("<deck>", `<one card per line>`).
    tools/build.mjs parses them the same way; keep the two parsers in step. */
-const DECK_FILE={crime:'crime',place:'place',evidence:'evidence',twist:'twist',gavel:'special',bargain:'special'};
-const ID_PREFIX={crime:'C',place:'P',evidence:'E',twist:'T',gavel:'G',bargain:'B'};
+const DECK_FILE={crime:'crime',place:'place',evidence:'evidence',twist:'twist',gavel:'special'};
+const ID_PREFIX={crime:'C',place:'P',evidence:'E',twist:'T',gavel:'G'};
 const DECK_CAP=20;
 let BASE=[],BASE_BY_ID={},deckProblems=[],deckSource='';
 function parseDecks(raw){
@@ -631,7 +641,7 @@ async function loadDecks(){
   const r=parseDecks(raw);
   BASE=r.cards;BASE_BY_ID=Object.fromEntries(BASE.map(c=>[c.id,c]));
   deckProblems=absent.map(f=>'cards/'+f+'.js did not load. Check that the file is in the cards folder and has no stray ` character inside a card.').concat(r.problems);
-  return {absent,ready:PLAY_DECKS.every(k=>playable(k).length>0)&&BASE.some(c=>c.deck==='gavel')&&BASE.some(c=>c.deck==='bargain')};
+  return {absent,ready:PLAY_DECKS.every(k=>playable(k).length>0)&&BASE.some(c=>c.deck==='gavel')};
 }
 const STATUS={'':'Unreviewed',approved:'Approved',needs:'Needs work',cut:'Cut'};
 
@@ -705,56 +715,97 @@ function showTab(t){
 }
 
 /* ---------- game ---------- */
+/* A round: every player, starting left of the Judge, takes a private turn (deal three cases, keep one whole,
+   optionally swap one card for the best of the next three in that deck). Then the trial: each kept case is
+   revealed and read out, everyone votes for the most ridiculous, and its owner is convicted (wins the round). */
 const STD_ROUNDS={3:6,4:5,5:4,6:3},LONG_ROUNDS={3:8,4:7,5:5,6:4};
-let setup=ls.get('ptf-setup')||{names:['Player 1','Player 2','Player 3'],preset:'standard',rounds:6,plea:60,cross:true,bargain:true,firstJudge:'random'};
-let g=null,sample=null,confirmQuit=false,tickHandle=null;
+const SWAP_LABEL={3:'Look at 3, keep 1',2:'Look at 2, keep 1',1:'Blind: draw 1',0:'No swap'};
+let setup=Object.assign({names:['Player 1','Player 2','Player 3'],preset:'standard',rounds:6,cases:3,swap:3,firstJudge:'random'},ls.get('ptf-setup')||{});
+let g=null,sample=null,confirmQuit=false;
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function applyPreset(){
   const n=setup.names.length;
-  if(setup.preset==='speed'){setup.rounds=1;setup.plea=30;setup.cross=false}
-  else if(setup.preset==='standard'){setup.rounds=STD_ROUNDS[n];setup.plea=60;setup.cross=true}
-  else if(setup.preset==='long'){setup.rounds=LONG_ROUNDS[n];setup.plea=60;setup.cross=true}
+  if(setup.preset==='speed'){setup.rounds=1;setup.cases=2;setup.swap=1}
+  else if(setup.preset==='standard'){setup.rounds=STD_ROUNDS[n];setup.cases=3;setup.swap=3}
+  else if(setup.preset==='long'){setup.rounds=LONG_ROUNDS[n];setup.cases=3;setup.swap=3}
 }
-function estMinutes(){const n=setup.names.length;return Math.max(1,Math.round(setup.rounds*(n*(20+setup.plea*0.8+(setup.cross?25:0)+12)+45)/60))}
+function estMinutes(){
+  const n=setup.names.length,turn=20+setup.cases*15+(setup.swap?10+setup.swap*4:0);
+  return Math.max(1,Math.round(setup.rounds*(n*(turn+20+8)+30)/60));
+}
 function dealSample(){sample=PLAY_DECKS.map(k=>{const p=playable(k);return p[Math.floor(Math.random()*p.length)]})}
 
+function inPlay(){ // every card currently out of the decks and discard piles
+  const out=new Set();
+  Object.values(g.hands).forEach(h=>h.forEach(id=>out.add(id)));
+  if(g.cur){g.cur.cases.forEach(c=>c.forEach(id=>out.add(id)));(g.cur.options||[]).forEach(id=>out.add(id))}
+  g.scores.forEach(s=>s.forEach(id=>out.add(id)));
+  return out;
+}
 function draw(deck){
   if(!g.decks[deck].length){g.decks[deck]=shuffle(g.discards[deck]);g.discards[deck]=[]}
-  if(!g.decks[deck].length){ // every card is in play or held as a trophy: reuse any playable card not on the table
-    const out=new Set();Object.values(g.sheets).forEach(s=>s.cards.forEach(c=>out.add(c)));
-    g.decks[deck]=shuffle(playable(deck).filter(id=>!out.has(id)));
+  if(!g.decks[deck].length){ // the whole deck is in hands or trophies: reuse a card that is not on the table
+    const out=inPlay();let pool=playable(deck).filter(id=>!out.has(id));
+    if(!pool.length)pool=playable(deck);
+    g.decks[deck]=shuffle(pool);
   }
   const id=g.decks[deck].pop();bump(id,'drawn');return id;
 }
-function prosecutor(d){return (d+1)%g.n}
+function reader(d){return (d+1)%g.n} // the player on the defendant's left reads their case out
 function startGame(){
   const names=setup.names.map((s,i)=>(s||'').trim()||('Player '+(i+1)));
   const n=names.length;
   const fj=setup.firstJudge==='random'?Math.floor(Math.random()*n):Math.min(+setup.firstJudge,n-1);
-  g={names,n,rounds:setup.rounds,plea:setup.plea,cross:setup.cross,round:1,judge:fj,
-    scores:names.map(()=>[]),bargains:names.map(()=>!!setup.bargain),
-    decks:{},discards:{},sheets:{},history:[],pleaLog:[],startedAt:Date.now(),showdown:null,champion:null};
+  g={v:2,names,n,rounds:setup.rounds,casesPer:setup.cases,swapPick:setup.swap,round:1,judge:fj,
+    scores:names.map(()=>[]),decks:{},discards:{},hands:{},history:[],turnLog:[],swaps:0,
+    startedAt:Date.now(),showdown:null,champion:null};
   PLAY_DECKS.forEach(k=>{g.decks[k]=shuffle(playable(k));g.discards[k]=[]});
   startRound();
 }
 function startRound(){
   g.order=[];for(let i=1;i<=g.n;i++)g.order.push((g.judge+i)%g.n);
-  g.turn=0;g.sheets={};g.votes={};g.roundStartedAt=Date.now();g.result=null;startHearing();
+  g.turn=0;g.hands={};g.votes={};g.roundStartedAt=Date.now();g.result=null;
+  g.phase='turn';g.step='pass';g.cur=null;g.fresh=null;
 }
-function startHearing(){
-  const d=g.order[g.turn];
-  g.sheets[d]={cards:PLAY_DECKS.map(draw),up:[false,false,false,false],swapped:null};
-  g.phase='hearing';g.step='charges';g.timer=null;g.fresh=-1;
+function beginTurn(){
+  g.cur={cases:[],up:[],kept:null,swapAt:null,options:null,startedAt:Date.now()};
+  for(let c=0;c<g.casesPer;c++){g.cur.cases.push(PLAY_DECKS.map(draw));g.cur.up.push([false,false,false,false])}
+  g.step='deal';
 }
-function pleaSeconds(){return g.showdown?30:g.plea}
-function endPlea(timeUp){
-  const t=g.timer;if(t){const rem=t.running?Math.max(0,(t.endsAt-Date.now())/1000):t.remaining;g.pleaLog.push(Math.round(t.total-rem))}
-  g.timer=null;g.step='after';g.timeUp=!!timeUp;stopTick();if(timeUp)beep();
+function dealOne(i){ // a tap on deck i deals into the first case still missing that deck's card
+  const c=g.cur.up.findIndex(u=>!u[i]);if(c<0)return;
+  g.cur.up[c][i]=true;g.fresh={c,i};
+  if(g.cur.up.every(u=>u.every(Boolean)))g.step='choose';
 }
-function nextHearing(){
-  g.turn++;
-  if(g.turn<g.order.length){startHearing();return}
+function keepCase(c){
+  const cur=g.cur;cur.kept=c;
+  cur.cases.forEach((cs,j)=>cs.forEach((id,i)=>{if(j===c)bump(id,'kept');else g.discards[PLAY_DECKS[i]].push(id)}));
+  cur.cases=[cur.cases[c]];cur.up=[[true,true,true,true]];
+  g.step=g.swapPick?'swap':'done';
+}
+function swapCard(i){
+  const cur=g.cur,k=PLAY_DECKS[i],old=cur.cases[0][i];
+  bump(old,'swapped');g.discards[k].push(old);cur.swapAt=i;g.swaps++;
+  const opts=[];for(let n=0;n<g.swapPick;n++)opts.push(draw(k));
+  if(opts.length===1){cur.cases[0][i]=opts[0];g.step='done';return}
+  cur.options=opts;cur.cases[0][i]=null;g.step='pick';
+}
+function pickOption(o){
+  const cur=g.cur,k=PLAY_DECKS[cur.swapAt];
+  cur.options.forEach((id,j)=>{if(j===o)cur.cases[0][cur.swapAt]=id;else g.discards[k].push(id)});
+  cur.options=null;g.step='done';
+}
+function endTurn(){
+  const p=g.order[g.turn];g.hands[p]=g.cur.cases[0].slice();
+  g.turnLog.push(Math.round((Date.now()-g.cur.startedAt)/1000));
+  g.cur=null;g.turn++;
+  if(g.turn<g.order.length){g.step='pass';return}
+  g.phase='trial';g.trialPos=0;g.shown=false;
+}
+function nextCase(){
+  g.trialPos++;g.shown=false;
+  if(g.trialPos<g.order.length)return;
   g.phase='vote';g.votes={};g.voterPos=0;g.ballotOpen=false;
   if(g.showdown&&g.showdown.finalists.length===2)g.voters=[...Array(g.n).keys()].filter(i=>!g.showdown.finalists.includes(i));
   else{g.voters=[];for(let i=1;i<=g.n;i++)g.voters.push((g.judge+i)%g.n)}
@@ -776,14 +827,14 @@ function tally(){
 }
 function resolve(w){
   g.result.winner=w;
-  if(g.showdown){g.champion=w;g.phase='final';persistReview();return}
-  const sh=g.sheets[w];g.scores[w].push(sh.cards[0]);sh.cards.forEach(id=>bump(id,'won'));
-  g.order.forEach(d=>g.sheets[d].cards.forEach((id,i)=>{if(!(d===w&&i===0))g.discards[PLAY_DECKS[i]].push(id)}));
-  g.history.push({round:g.round,winner:w,judge:g.judge,tie:g.result.tie,seconds:Math.round((Date.now()-g.roundStartedAt)/1000),crime:sh.cards[0]});
+  if(g.showdown){g.champion=w;g.endedAt=Date.now();g.phase='final';persistReview();return}
+  const h=g.hands[w];g.scores[w].push(h[0]);h.forEach(id=>bump(id,'won'));
+  g.order.forEach(d=>g.hands[d].forEach((id,i)=>{if(!(d===w&&i===0))g.discards[PLAY_DECKS[i]].push(id)}));
+  g.history.push({round:g.round,winner:w,judge:g.judge,tie:g.result.tie,seconds:Math.round((Date.now()-g.roundStartedAt)/1000),crime:h[0]});
   g.phase='reveal';persistReview();
 }
 function nextRound(){
-  g.judge=g.result.winner;
+  g.judge=g.result.winner;g.hands={}; // resolve() already discarded every case
   if(g.round>=g.rounds){
     const max=Math.max(...g.scores.map(s=>s.length));const lead=g.scores.map((s,i)=>s.length===max?i:-1).filter(i=>i>=0);
     g.endedAt=Date.now();g.phase='final';
@@ -794,33 +845,19 @@ function nextRound(){
 }
 function startShowdown(){
   const f=[];for(let i=1;i<=g.n;i++){const p=(g.judge+i)%g.n;if(g.leaders.includes(p))f.push(p)}
-  g.showdown={finalists:f};g.order=f;g.turn=0;g.sheets={};g.votes={};g.result=null;startHearing();
+  g.showdown={finalists:f};g.order=f;g.turn=0;g.hands={};g.votes={};g.result=null;
+  g.phase='turn';g.step='pass';g.cur=null;g.fresh=null;g.roundStartedAt=Date.now();
 }
-
-/* timer */
-function startTick(){stopTick();tickHandle=setInterval(tick,200)}
-function stopTick(){if(tickHandle){clearInterval(tickHandle);tickHandle=null}}
-function tick(){
-  if(!g||!g.timer||!g.timer.running){stopTick();return}
-  const rem=Math.max(0,(g.timer.endsAt-Date.now())/1000);
-  const num=$('#timer-num'),bar=$('#timer-fill');
-  if(num){num.textContent=Math.ceil(rem);num.classList.toggle('is-low',rem<=10)}
-  if(bar)bar.style.width=(100*rem/g.timer.total)+'%';
-  if(rem<=0){endPlea(true);saveGame();renderPlay()}
-}
-let actx=null;
-function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),v=actx.createGain();o.frequency.value=180;o.type='square';v.gain.setValueAtTime(.15,actx.currentTime);v.gain.exponentialRampToValueAtTime(.001,actx.currentTime+.5);o.connect(v);v.connect(actx.destination);o.start();o.stop(actx.currentTime+.5)}catch(e){}}
-function saveGame(){if(g&&g.phase!=='final')ls.set('ptf-game',g);else ls.del('ptf-game')}
+function saveGame(){if(g&&g.phase!=='final')ls.set('ptf-game2',g);else ls.del('ptf-game2')}
 
 /* ---------- play views ---------- */
 function renderPlay(){
   const root=$('#view-play');
-  root.innerHTML=!g?viewSetup():g.phase==='hearing'?viewHearing():g.phase==='vote'?viewVote():g.phase==='tie'?viewTie():g.phase==='reveal'?viewReveal():viewFinal();
-  if(g&&g.timer&&g.timer.running)startTick();
-  if(g&&g.phase==='hearing'&&g.fresh>=0){animateDraw(g.fresh);g.fresh=-1}
+  root.innerHTML=!g?viewSetup():g.phase==='turn'?viewTurn():g.phase==='trial'?viewTrial():g.phase==='vote'?viewVote():g.phase==='tie'?viewTie():g.phase==='reveal'?viewReveal():viewFinal();
+  if(g&&g.phase==='turn'&&g.fresh){animateDraw(g.fresh.c,g.fresh.i);g.fresh=null}
 }
-function animateDraw(i){
-  const slot=$('#slot-'+i),fl=slot&&slot.querySelector('.flipper'),dk=$('#deck-'+PLAY_DECKS[i]);
+function animateDraw(c,i){
+  const slot=$('#slot-'+c+'-'+i),fl=slot&&slot.querySelector('.flipper'),dk=$('#deck-'+PLAY_DECKS[i]);
   if(!fl)return;
   const back=fl.querySelector('.flipper__back'),done=()=>{if(back)back.remove();fl.style.zIndex=''};
   let still=false;try{still=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
@@ -836,99 +873,123 @@ function animateDraw(i){
 }
 function viewSetup(){
   if(!sample)dealSample();
-  const n=setup.names.length,saved=ls.get('ptf-game');
-  const sc=sample.map(card);
-  const short=PLAY_DECKS.filter(k=>playable(k).length<(k==='crime'?n+setup.rounds+1:n+2));
+  const n=setup.names.length,saved=ls.get('ptf-game2');
+  const sc=sample.map(card),need=n+setup.cases+setup.swap+1;
+  const short=PLAY_DECKS.filter(k=>playable(k).length<(k==='crime'?need+setup.rounds:need));
   return `<div class="hero"><p class="mono">A courtroom party game · 3 to 6 players · 18+</p>
     <h1>Plead the <s>Fifth</s> <b>Filth</b></h1>
-    <p>You have been arrested. The charge sheet is four cards long and all of it is true. You have 60 seconds to explain yourself. The funniest excuse walks free.</p></div>
+    <p>Every turn you secretly draw three cases, keep the most ridiculous one and swap in something worse. Then every case goes on trial, and the prosecutors convict the most outrageous. Most convictions wins.</p></div>
   <div class="setup">
     <div class="panel stack">
       <h2 style="margin:0">Booking desk</h2>
-      ${saved?`<div class="callout"><p><strong>A game is in progress.</strong> Round ${saved.round} of ${saved.rounds}, ${saved.names.map(esc).join(', ')}.</p><div class="row" style="margin-top:8px"><button class="btn btn--sm" data-action="resume-game" id="btn-resume">Resume it</button><button class="btn btn--sm btn--ghost" data-action="discard-game" id="btn-discard">Throw it out</button></div></div>`:''}
+      ${saved&&saved.v===2?`<div class="callout"><p><strong>A game is in progress.</strong> Round ${saved.round} of ${saved.rounds}, ${saved.names.map(esc).join(', ')}.</p><div class="row" style="margin-top:8px"><button class="btn btn--sm" data-action="resume-game" id="btn-resume">Resume it</button><button class="btn btn--sm btn--ghost" data-action="discard-game" id="btn-discard">Throw it out</button></div></div>`:''}
       <div><p class="mono" style="margin-bottom:6px">Players, in seating order (clockwise)</p>
         <div class="players">${setup.names.map((nm,i)=>`<div class="row"><span class="seat">${i+1}</span><input type="text" id="name-${i}" data-name="${i}" value="${esc(nm)}" maxlength="18" aria-label="Player ${i+1} name">${n>3?`<button class="btn btn--sm btn--ghost" data-action="remove-player" data-i="${i}" id="rm-${i}" aria-label="Remove player ${i+1}">Remove</button>`:''}</div>`).join('')}</div>
         ${n<6?`<button class="btn btn--sm" data-action="add-player" id="btn-add">Add a player</button>`:''}</div>
       <div><p class="mono" style="margin-bottom:6px">Game length</p>
         <div class="presets">
-          ${[['speed','Speed trial','1 round, 30 s pleas'],['standard','Standard',STD_ROUNDS[n]+' rounds, 60 s pleas'],['long','Long',LONG_ROUNDS[n]+' rounds, 60 s pleas']].map(p=>`<button class="preset" data-action="preset" data-p="${p[0]}" id="preset-${p[0]}" aria-pressed="${setup.preset===p[0]}"><b>${p[1]}</b><span>${p[2]}</span></button>`).join('')}
+          ${[['speed','Speed trial','1 round, 2 cases, blind swap'],['standard','Standard',STD_ROUNDS[n]+' rounds'],['long','Long',LONG_ROUNDS[n]+' rounds']].map(p=>`<button class="preset" data-action="preset" data-p="${p[0]}" id="preset-${p[0]}" aria-pressed="${setup.preset===p[0]}"><b>${p[1]}</b><span>${p[2]}</span></button>`).join('')}
         </div></div>
       <div class="grid2">
         <label class="field"><span>Rounds</span><input type="number" id="set-rounds" min="1" max="12" value="${setup.rounds}"></label>
-        <label class="field"><span>Plea timer</span><select id="set-plea">${[30,45,60,90].map(s=>`<option value="${s}" ${setup.plea===s?'selected':''}>${s} seconds</option>`).join('')}</select></label>
-        <label class="field" style="grid-column:1/-1"><span>First Judge (holds the Gavel)</span><select id="set-judge"><option value="random">Pick at random</option>${setup.names.map((nm,i)=>`<option value="${i}" ${String(setup.firstJudge)===String(i)?'selected':''}>${esc(nm||'Player '+(i+1))}</option>`).join('')}</select></label>
+        <label class="field"><span>Cases drawn per turn</span><select id="set-cases">${[2,3,4].map(c=>`<option value="${c}" ${setup.cases===c?'selected':''}>${c} cases</option>`).join('')}</select></label>
+        <label class="field"><span>End-of-turn swap</span><select id="set-swap">${[3,2,1,0].map(s=>`<option value="${s}" ${setup.swap===s?'selected':''}>${SWAP_LABEL[s]}</option>`).join('')}</select></label>
+        <label class="field"><span>First Judge (holds the Gavel)</span><select id="set-judge"><option value="random">Pick at random</option>${setup.names.map((nm,i)=>`<option value="${i}" ${String(setup.firstJudge)===String(i)?'selected':''}>${esc(nm||'Player '+(i+1))}</option>`).join('')}</select></label>
       </div>
-      <label class="check"><input type="checkbox" id="set-cross" ${setup.cross?'checked':''}><span><strong>Cross-examination.</strong> The Prosecutor asks one follow-up question after each plea.</span></label>
-      <label class="check"><input type="checkbox" id="set-bargain" ${setup.bargain?'checked':''}><span><strong>Plea Bargains.</strong> Each player may swap one card, once per game.</span></label>
-      ${short.length?`<p style="color:var(--accent)"><strong>Not enough cards.</strong> The ${short.map(k=>DECK[k].name).join(', ')} deck has too many cut cards for this game. Restore some in the Cards tab or play fewer rounds.</p>`:''}
+      ${short.length?`<p style="color:var(--accent)"><strong>Not enough cards.</strong> The ${short.map(k=>DECK[k].name).join(', ')} deck has too many cut cards for this game. Restore some in the Cards tab, or draw fewer cases.</p>`:''}
       <div class="row"><button class="btn btn--primary" data-action="start" id="btn-start" ${short.length?'disabled':''}>Call the court to order</button><span class="note">About ${estMinutes()} min</span></div>
     </div>
     <div class="stack">
-      <div class="row" style="justify-content:space-between"><p class="mono">Sample charge sheet</p><button class="btn btn--sm" data-action="deal-sample" id="btn-deal-sample">Deal another</button></div>
+      <div class="row" style="justify-content:space-between"><p class="mono">Sample case</p><button class="btn btn--sm" data-action="deal-sample" id="btn-deal-sample">Deal another</button></div>
       <div class="sheet">${sc.map(c=>cardFace(c)).join('')}</div>
       <p class="charge">${chargeHTML(sc,4)}</p>
-      <p class="note">One screen is the table. Tap each deck to deal a card down into the scene while the Prosecutor reads it out, the Defendant pleads out loud, and each player taps their vote in turn. New here? Read the <a href="#rules" data-tab="rules" style="color:inherit">rulebook</a>.</p>
+      <p class="note">One screen is the table. Each turn is private: pass the device, deal your cases by tapping the decks, keep one and hide it. At the trial every case is revealed and read out, then each player taps their vote in turn. New here? Read the <a href="#rules" data-tab="rules" style="color:inherit">rulebook</a>.</p>
     </div>
   </div>`;
 }
 function rail(){
-  const d=g.phase==='hearing'?g.order[g.turn]:-1,p=d>=0?prosecutor(d):-1;
+  const cur=g.phase==='turn'?g.order[g.turn]:-1,def=g.phase==='trial'?g.order[g.trialPos]:-1,rd=def>=0?reader(def):-1;
   return `<aside class="rail"><h2>Docket</h2>
-    ${g.names.map((nm,i)=>`<div class="seatrow ${i===d?'is-up':''}"><b>${esc(nm)}</b><span class="score" title="Acquittals">${g.scores[i].length}</span>
-      <div class="tags">${i===g.judge?'<span class="tag tag--judge">Judge</span>':''}${i===d?'<span class="tag tag--role">Defendant</span>':''}${i===p?'<span class="tag tag--role">Prosecutor</span>':''}${setup.bargain||g.bargains.some(Boolean)?`<span class="tag ${g.bargains[i]?'':'tag--used'}">Plea Bargain</span>`:''}</div></div>`).join('')}
-    <p class="note" style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">The number is acquittals. Most after round ${g.rounds} wins.</p>
+    ${g.names.map((nm,i)=>`<div class="seatrow ${i===cur||i===def?'is-up':''}"><b>${esc(nm)}</b><span class="score" title="Convictions">${g.scores[i].length}</span>
+      <div class="tags">${i===g.judge?'<span class="tag tag--judge">Judge</span>':''}${i===cur?'<span class="tag tag--role">Building a case</span>':''}${g.phase==='turn'&&g.hands[i]?'<span class="tag">Case ready</span>':''}${i===def?'<span class="tag tag--role">On trial</span>':''}${i===rd?'<span class="tag tag--role">Reading</span>':''}</div></div>`).join('')}
+    <p class="note" style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">The number is convictions. Most after round ${g.rounds} wins.</p>
     ${confirmQuit?`<div class="row" style="margin-top:8px"><button class="btn btn--sm" data-action="quit-yes" id="btn-quit-yes" style="width:auto;margin:0">End the game</button><button class="btn btn--sm btn--ghost" data-action="quit-no" id="btn-quit-no" style="width:auto;margin:0">Keep playing</button></div>`:`<button class="btn btn--sm btn--ghost" data-action="quit" id="btn-quit">End game</button>`}
   </aside>`;
 }
 function docket(extra){return `<div class="docketline"><span>${g.showdown?'Supreme Court showdown':'Round '+g.round+' of '+g.rounds}</span>${extra||''}<span>Judge: ${esc(g.names[g.judge])}</span></div>`}
-function viewHearing(){
-  const d=g.order[g.turn],sh=g.sheets[d],pros=prosecutor(d),cards=sh.cards.map(card),N=esc(g.names[d]),P=esc(g.names[pros]);
-  if(!sh.up)sh.up=[0,1,2,3].map(i=>i<(sh.flipped||0)); // games saved before decks could be drawn in any order
-  const dealing=g.step==='charges'||g.step==='ready'||g.step==='swap';
-  const decks=!dealing?'':`<div class="decks">${PLAY_DECKS.map((k,i)=>{
-      const live=g.step==='charges'&&!sh.up[i],left=g.decks[k].length+(sh.up[i]?0:1);
-      return `<div class="pile ${live?'':'is-spent'}">${cardBack(k,{cls:'deck'+(live?' is-live':''),attrs:`id="deck-${k}" `+(live?`data-action="flip" data-i="${i}" role="button" tabindex="0" aria-label="Draw from the ${DECK[k].name} deck"`:'aria-hidden="true"')})}<span class="pile__n">${live?'Tap to draw':left+' left'}</span></div>`}).join('')}</div>
-    <p class="scene-label">The scene</p>`;
-  const slots=cards.map((c,i)=>`<div class="slot" id="slot-${i}">${sh.up[i]
-    ?`<div class="flipper">${cardFace(c)}${i===g.fresh?cardBack(c.deck,{cls:'flipper__back'}):''}</div><button class="flag" data-action="flag" data-id="${c.id}" id="flag-${c.id}" aria-pressed="${c.status==='needs'}" title="Mark this card as needing a rewrite. It shows up in the Cards tab.">${c.status==='needs'?'Flagged for rewrite':'Flag for rewrite'}</button>`
-    :`<div class="empty">${ICON[c.deck]}<span>${i+1}. ${DECK[c.deck].name}</span></div>`}</div>`).join('');
-  let act='';
-  if(g.step==='charges'){
-    act=`<p class="note" id="deal-hint">${sh.swapped?'Tap the '+DECK[sh.swapped].name+' deck to draw the replacement. '+N+' must keep it.':'Tap each deck to deal the charges, in any order. '+P+' reads each card out loud as it lands.'}</p>`;
-  }else if(g.step==='ready'){
-    const canB=!g.showdown&&g.bargains[d];
-    act=`<div class="actions"><button class="btn btn--primary" data-action="start-plea" id="btn-plea">Start the ${pleaSeconds()}-second plea</button>${canB?`<button class="btn" data-action="bargain" id="btn-bargain">Use Plea Bargain</button>`:''}</div>
-      <p class="note">${sh.swapped?N+' took a Plea Bargain and must keep the new '+DECK[sh.swapped].name+' card.':canB?N+' may swap one card first. This is the only Plea Bargain '+N+' gets this game.':'Every card is true. Explain it, do not deny it.'}</p>`;
-  }else if(g.step==='swap'){
-    act=`<div class="callout"><h3>Plea Bargain</h3><p>${N}, which card do you want thrown out? You must keep the replacement.</p>
-      <div class="actions" style="margin-top:10px">${PLAY_DECKS.map((k,i)=>`<button class="btn" data-action="swap" data-i="${i}" id="btn-swap-${k}">Swap the ${DECK[k].name}</button>`).join('')}<button class="btn btn--ghost" data-action="cancel-swap" id="btn-cancel-swap">Keep all four</button></div></div>`;
-  }else if(g.step==='plea'){
-    const t=g.timer,rem=t.running?Math.max(0,(t.endsAt-Date.now())/1000):t.remaining;
-    act=`<div class="timer"><div class="timer__num ${rem<=10?'is-low':''}" id="timer-num" aria-label="Seconds left">${Math.ceil(rem)}</div><div class="timer__bar"><i id="timer-fill" style="width:${100*rem/t.total}%"></i></div></div>
-      <div class="actions"><button class="btn" data-action="${t.running?'pause':'resume'}" id="btn-pause">${t.running?'Pause':'Resume'}</button><button class="btn btn--primary" data-action="rest" id="btn-rest">I rest my case</button></div>`;
-  }else{
-    const last=g.turn===g.order.length-1,cross=g.cross&&!g.showdown;
-    act=`<div class="callout"><h3>${g.timeUp?'Time. Finish your sentence.':'The defence rests.'}</h3>${cross?`<p><strong>Cross-examination.</strong> ${P}, ask ${N} one follow-up question. ${N} answers in a sentence or two.</p>`:''}</div>
-      <div class="actions"><button class="btn btn--primary" data-action="next-hearing" id="btn-next">${last?'Go to the verdict':'Call the next defendant'}</button></div>`;
-  }
-  return `<div class="table"><div class="stage">
-      <div>${docket(`<span>Hearing ${g.turn+1} of ${g.order.length}</span><span>Prosecutor: ${P}</span>`)}
-        <h1 class="case">The People <em>v.</em> ${N}</h1></div>
-      ${decks}
-      <div class="sheet">${slots}</div>
-      <p class="charge">${chargeHTML(cards,sh.up)}</p>
-      ${act}
-    </div>${rail()}</div>`;
+function flagBtn(c){return `<button class="flag" data-action="flag" data-id="${c.id}" id="flag-${c.id}" aria-pressed="${c.status==='needs'}" title="Mark this card as needing a rewrite. It shows up in the Cards tab.">${c.status==='needs'?'Flagged for rewrite':'Flag for rewrite'}</button>`}
+function caseFile(c,o){ // one case: four slots, its sentence, and an optional action
+  const ids=g.cur.cases[c],up=g.cur.up[c],fresh=g.fresh&&g.fresh.c===c?g.fresh.i:-1;
+  const cards=ids.map(id=>id?card(id):null);
+  const slots=PLAY_DECKS.map((k,i)=>`<div class="slot" id="slot-${c}-${i}">${cards[i]&&up[i]
+    ?`<div class="flipper">${cardFace(cards[i])}${i===fresh?cardBack(k,{cls:'flipper__back'}):''}</div>`
+    :`<div class="empty">${ICON[k]}<span>${DECK[k].name}</span></div>`}</div>`).join('');
+  const shown=PLAY_DECKS.map((k,i)=>!!(cards[i]&&up[i]));
+  const sentenceCards=cards.map((x,i)=>x||{text:'',deck:PLAY_DECKS[i]});
+  return `<section class="casefile ${o.cls||''}" id="case-${c}"><div class="row" style="justify-content:space-between"><h3>${esc(o.title)}</h3>${o.action||''}</div>
+    <div class="sheet">${slots}</div><p class="charge">${chargeHTML(sentenceCards,shown)}</p></section>`;
 }
-function sheetLine(d){const c=g.sheets[d].cards.map(card);return `${esc(c[0].name)} · ${esc(c[1].name)} · ${esc(c[2].name)} · ${esc(c[3].name)}`}
+function viewTurn(){
+  const p=g.order[g.turn],N=esc(g.names[p]),cur=g.cur;
+  const nextP=g.turn+1<g.order.length?esc(g.names[g.order[g.turn+1]]):null;
+  const head=`<div>${docket(`<span>Turn ${g.turn+1} of ${g.order.length}</span>`)}<h1 class="case">${N} builds a case</h1></div>`;
+  if(g.step==='pass'){
+    return `<div class="table"><div class="stage">${head}
+      <div class="callout"><h3>Pass the device to ${N}</h3><p>Everyone else, look away until ${N} hides their case. ${N} deals ${g.casesPer} cases, keeps the most ridiculous one whole${g.swapPick?', and may swap one of its cards':''}.</p></div>
+      <div class="actions"><button class="btn btn--primary" data-action="begin-turn" id="btn-begin">I am ${N}. Start my turn</button></div>
+    </div>${rail()}</div>`;
+  }
+  let body='';
+  if(g.step==='deal'||g.step==='choose'){
+    const decks=g.step!=='deal'?'':`<div class="decks">${PLAY_DECKS.map((k,i)=>{
+        const live=cur.up.some(u=>!u[i]),left=cur.up.filter(u=>!u[i]).length;
+        return `<div class="pile ${live?'':'is-spent'}">${cardBack(k,{cls:'deck'+(live?' is-live':''),attrs:`id="deck-${k}" `+(live?`data-action="deal" data-i="${i}" role="button" tabindex="0" aria-label="Deal from the ${DECK[k].name} deck"`:'aria-hidden="true"')})}<span class="pile__n">${live?'Tap to deal · '+left+' to go':'Dealt'}</span></div>`}).join('')}</div>
+      <div class="actions"><button class="btn btn--sm" data-action="deal-rest" id="btn-deal-rest">Deal the rest</button><span class="note">Tap a deck to deal its card into the next case that needs one.</span></div>
+      <p class="scene-label">Your ${g.casesPer} cases</p>`;
+    body=decks+`<div class="cases">${cur.cases.map((_,c)=>caseFile(c,{title:'Case '+(c+1),
+      action:g.step==='choose'?`<button class="btn btn--sm" data-action="keep" data-c="${c}" id="btn-keep-${c}">Keep case ${c+1}</button>`:''})).join('')}</div>`
+      +(g.step==='choose'?`<p class="note">Keep one case exactly as dealt. You can't move cards between cases. The others are discarded.</p>`:'');
+  }else if(g.step==='swap'){
+    const how=g.swapPick===1?'Discard it and draw the top card of that deck. You must keep the new card.':`Discard it, look at the top ${g.swapPick} cards of that deck, and keep the one you like best. You can't get the discarded card back.`;
+    body=caseFile(0,{title:'Your case',cls:'is-kept'})+`<div class="callout"><h3>Swap one card?</h3><p>${how}</p>
+      <div class="actions" style="margin-top:10px">${PLAY_DECKS.map((k,i)=>`<button class="btn" data-action="swap-card" data-i="${i}" id="btn-swap-${k}">Swap the ${DECK[k].name}</button>`).join('')}<button class="btn btn--ghost" data-action="no-swap" id="btn-keep-as-is">Keep it as it is</button></div></div>`;
+  }else if(g.step==='pick'){
+    const k=PLAY_DECKS[cur.swapAt];
+    body=caseFile(0,{title:'Your case',cls:'is-kept'})+`<div class="callout"><h3>Pick the new ${DECK[k].name} card</h3><p>Keep one. The others are discarded.</p></div>
+      <div class="options">${cur.options.map((id,o)=>`<div class="slot">${cardFace(card(id))}<button class="btn btn--sm" data-action="pick" data-o="${o}" id="btn-pick-${o}">Keep this one</button></div>`).join('')}</div>`;
+  }else{
+    body=caseFile(0,{title:'Your case is locked in',cls:'is-kept'})+`<div class="actions"><button class="btn btn--primary" data-action="end-turn" id="btn-end-turn">${nextP?'Hide my case and pass to '+nextP:'Hide my case and go to trial'}</button></div>
+      <p class="note">Keep it to yourself until the trial.</p>`;
+  }
+  return `<div class="table"><div class="stage">${head}${body}</div>${rail()}</div>`;
+}
+function viewTrial(){
+  const d=g.order[g.trialPos],N=esc(g.names[d]),R=esc(g.names[reader(d)]),ids=g.hands[d],cards=ids.map(card);
+  const last=g.trialPos===g.order.length-1,anim=g.shown==='fresh';
+  const sheet=g.shown
+    ?cards.map((c,i)=>`<div class="slot"><div class="flipper ${anim?'is-turning':''}" style="animation-delay:${i*180}ms">${cardFace(c)}${anim?cardBack(c.deck,{cls:'flipper__back'}):''}</div>${flagBtn(c)}</div>`).join('')
+    :PLAY_DECKS.map(k=>`<div class="slot">${cardBack(k)}</div>`).join('');
+  const earlier=g.order.slice(0,g.trialPos);
+  if(anim)g.shown=true;
+  return `<div class="table"><div class="stage">
+    <div>${docket(`<span>Case ${g.trialPos+1} of ${g.order.length}</span><span>Read by ${R}</span>`)}<h1 class="case">The People <em>v.</em> ${N}</h1></div>
+    <div class="sheet">${sheet}</div>
+    ${g.shown?`<p class="charge">${chargeHTML(cards,4)}</p>
+      <p class="note">${R}, read it out like a prosecutor. ${N} offers no defence.</p>
+      <div class="actions"><button class="btn btn--primary" data-action="next-case" id="${last?'btn-to-vote':'btn-next-case'}">${last?'Every case is in. Go to the vote':'Next case'}</button></div>`
+      :`<div class="actions"><button class="btn btn--primary" data-action="reveal-case" id="btn-reveal">Reveal ${N}'s case</button><span class="note">${R} reads it out loud.</span></div>`}
+    ${earlier.length?`<div><p class="mono" style="margin-bottom:6px">Already heard</p><ul class="recap">${earlier.map(e=>`<li><strong>${esc(g.names[e])}</strong><br><span class="note">${chargeHTML(g.hands[e].map(card),4)}</span></li>`).join('')}</ul></div>`:''}
+  </div>${rail()}</div>`;
+}
+function sheetLine(d){return chargeHTML(g.hands[d].map(card),4)}
 function viewVote(){
   const v=g.voters[g.voterPos],V=esc(g.names[v]);
   const body=!g.ballotOpen
-    ?`<h1 class="case">The jury votes</h1>
-      <ul class="recap">${g.order.map(d=>`<li><strong>${esc(g.names[d])}</strong><br><span class="note">${chargeHTML(g.sheets[d].cards.map(card),4)}</span></li>`).join('')}</ul>
-      <div class="callout"><h3>Juror ${g.voterPos+1} of ${g.voters.length}: ${V}</h3><p>Everyone else looks away. ${V}, open your ballot and pick the funniest plea. You cannot vote for yourself.</p></div>
+    ?`<h1 class="case">The prosecutors vote</h1>
+      <ul class="recap">${g.order.map(d=>`<li><strong>${esc(g.names[d])}</strong><br><span class="note">${sheetLine(d)}</span></li>`).join('')}</ul>
+      <div class="callout"><h3>Prosecutor ${g.voterPos+1} of ${g.voters.length}: ${V}</h3><p>Everyone else looks away. ${V}, open your ballot and pick the most ridiculous case. You cannot vote for your own.</p></div>
       <div class="actions"><button class="btn btn--primary" data-action="open-ballot" id="btn-ballot">I am ${V}. Show my ballot</button></div>`
-    :`<h1 class="case">${V}'s ballot</h1><p>Whose plea was the funniest?</p>
+    :`<h1 class="case">${V}'s ballot</h1><p>Which case is the most ridiculous?</p>
       <div class="ballot">${g.order.filter(d=>d!==v).map(d=>`<button class="btn" data-action="vote" data-t="${d}" id="vote-${d}"><b>${esc(g.names[d])}</b><span>${sheetLine(d)}</span></button>`).join('')}</div>`;
   return `<div class="table"><div class="stage"><div>${docket('<span>Verdict</span>')}</div>${body}</div>${rail()}</div>`;
 }
@@ -948,36 +1009,37 @@ function viewTie(){
   const r=g.result,J=esc(g.names[g.judge]);
   return `<div class="table"><div class="stage"><div>${docket('<span>Hung jury</span>')}<h1 class="case">Tied vote</h1></div>
     ${tallyHTML()}
-    <div class="callout"><h3>Judge ${J} decides</h3><p>${J}'s own vote went to someone outside the tie. ${J}, rule for one of the tied defendants. You cannot pick yourself.</p></div>
+    <div class="callout"><h3>Judge ${J} decides</h3><p>${J}'s own vote went to someone outside the tie. ${J}, rule for one of the tied cases. You cannot pick your own.</p></div>
     <div class="ballot">${r.options.map(d=>`<button class="btn" data-action="rule" data-t="${d}" id="rule-${d}"><b>${esc(g.names[d])}</b><span>${sheetLine(d)}</span></button>`).join('')}</div>
   </div>${rail()}</div>`;
 }
 function viewReveal(){
   const r=g.result,w=r.winner,W=esc(g.names[w]),last=g.round>=g.rounds;
-  return `<div class="table"><div class="stage"><div>${docket('<span>Verdict</span>')}<h1 class="case">${W} walks free</h1><div class="stamp">Not guilty</div></div>
+  return `<div class="table"><div class="stage"><div>${docket('<span>Verdict</span>')}<h1 class="case">${W} is convicted</h1><div class="stamp">Guilty</div></div>
+    <p class="charge">${sheetLine(w)}</p>
     ${tallyHTML()}
     ${r.tie?`<p><strong>${tieText()}</strong></p>`:''}
-    <div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:16px"><div style="width:130px;flex:none">${cardFace(card(g.sheets[w].cards[0]))}</div>
-      <p>${W} keeps this Crime card as a trophy. That is acquittal number ${g.scores[w].length} for ${W}.<br>${last?'That was the last round.':(w===g.judge?W+' already holds the Gavel and stays Judge.':'The Gavel passes to '+W+', who is the Judge for round '+(g.round+1)+' and pleads last.')}</p></div>
+    <div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:16px"><div style="width:130px;flex:none">${cardFace(card(g.hands[w][0]))}</div>
+      <p>${W} wins the round and keeps this Crime card on their rap sheet. That is conviction number ${g.scores[w].length} for ${W}.<br>${last?'That was the last round.':(w===g.judge?W+' already holds the Gavel and stays Judge.':'The Gavel passes to '+W+', who is the Judge for round '+(g.round+1)+' and builds last.')}</p></div>
     <div class="actions"><button class="btn btn--primary" data-action="next-round" id="btn-next-round">${last?'Read the final verdict':'Start round '+(g.round+1)}</button></div>
   </div>${rail()}</div>`;
 }
 function viewFinal(){
   const done=g.champion!=null,mins=Math.max(1,Math.round(((g.endedAt||Date.now())-g.startedAt)/60000));
-  const avg=g.pleaLog.length?Math.round(g.pleaLog.reduce((a,b)=>a+b,0)/g.pleaLog.length):0,ties=g.history.filter(h=>h.tie).length;
+  const avg=g.turnLog.length?Math.round(g.turnLog.reduce((a,b)=>a+b,0)/g.turnLog.length):0,ties=g.history.filter(h=>h.tie).length;
   const rank=g.names.map((nm,i)=>({nm,i,s:g.scores[i].length})).sort((a,b)=>b.s-a.s);
   const head=done
     ?`<h1 class="case">${esc(g.names[g.champion])} wins</h1><div class="stamp">Case closed</div>${g.showdown?`<p>Decided in the Supreme Court.</p>${tallyHTML()}${g.result.tie?`<p><strong>${tieText()}</strong></p>`:''}`:''}`
-    :`<h1 class="case">Tied for first</h1><p>${g.leaders.map(i=>esc(g.names[i])).join(' and ')} each have ${g.scores[g.leaders[0]].length} acquittals. This goes to the Supreme Court: a fresh charge sheet each, 30-second pleas, no Plea Bargains, no cross-examination.${g.leaders.length===2?' Only the other players vote.':' Everyone votes for a finalist other than themself.'}</p>
+    :`<h1 class="case">Tied for first</h1><p>${g.leaders.map(i=>esc(g.names[i])).join(' and ')} each have ${g.scores[g.leaders[0]].length} convictions. This goes to the Supreme Court: each finalist takes one more turn, then every finalist's case goes on trial.${g.leaders.length===2?' Only the other players vote.':' Everyone votes for a finalist other than themself.'}</p>
       <div class="actions"><button class="btn btn--primary" data-action="showdown" id="btn-showdown">Convene the Supreme Court</button></div>`;
   return `<div class="stage"><div><div class="docketline"><span>Final verdict</span><span>${g.rounds} ${g.rounds===1?'round':'rounds'}</span></div>${head}</div>
-    <div class="scroll"><table class="hist" style="max-width:520px"><thead><tr><th>Player</th><th>Acquittals</th><th>Crimes they got away with</th></tr></thead><tbody>
-      ${rank.map(p=>`<tr><td><strong>${esc(p.nm)}</strong></td><td>${p.s}</td><td>${g.scores[p.i].map(id=>esc(card(id).name)).join(', ')||'None'}</td></tr>`).join('')}</tbody></table></div>
+    <div class="scroll"><table class="hist" style="max-width:520px"><thead><tr><th>Player</th><th>Convictions</th><th>Rap sheet</th></tr></thead><tbody>
+      ${rank.map(p=>`<tr><td><strong>${esc(p.nm)}</strong></td><td>${p.s}</td><td>${g.scores[p.i].map(id=>esc(card(id).name)).join(', ')||'Clean'}</td></tr>`).join('')}</tbody></table></div>
     <div class="panel"><h2>Playtest numbers</h2>
-      <div class="kpis"><div><b>${mins} min</b><span>Total time</span></div><div><b>${avg} s</b><span>Average plea (timer ${g.plea} s)</span></div><div><b>${ties} of ${g.history.length}</b><span>Rounds tied</span></div><div><b>${g.bargains.filter(b=>!b).length} of ${g.n}</b><span>Plea Bargains used</span></div></div>
-      <div class="scroll" style="margin-top:14px"><table class="hist"><thead><tr><th>Round</th><th>Acquitted</th><th>Judge</th><th>Tie</th><th>Length</th></tr></thead><tbody>
+      <div class="kpis"><div><b>${mins} min</b><span>Total time</span></div><div><b>${avg} s</b><span>Average turn</span></div><div><b>${ties} of ${g.history.length}</b><span>Rounds tied</span></div><div><b>${g.swaps} of ${g.turnLog.length}</b><span>Turns with a swap</span></div></div>
+      <div class="scroll" style="margin-top:14px"><table class="hist"><thead><tr><th>Round</th><th>Convicted</th><th>Judge</th><th>Tie</th><th>Length</th></tr></thead><tbody>
       ${g.history.map(h=>`<tr><td>${h.round}</td><td>${esc(g.names[h.winner])} (${esc(card(h.crime).name)})</td><td>${esc(g.names[h.judge])}</td><td>${h.tie?({ballot:"Judge's vote",forced:'Judge was tied',ruling:'Judge ruled'})[h.tie]:'No'}</td><td>${Math.floor(h.seconds/60)}:${String(h.seconds%60).padStart(2,'0')}</td></tr>`).join('')}</tbody></table></div>
-      <p class="note" style="margin-top:10px">Per-card numbers (drawn, acquitted, bargained away) are in the table view of the Cards tab.</p></div>
+      <p class="note" style="margin-top:10px">Per-card numbers (drawn, kept, convicted, swapped out) are in the table view of the Cards tab.</p></div>
     ${done?`<div class="actions"><button class="btn btn--primary" data-action="rematch" id="btn-rematch">Play again</button><button class="btn" data-action="new-setup" id="btn-new-setup">Change players or settings</button></div>`:''}
   </div>`;
 }
@@ -988,7 +1050,7 @@ function renderCards(){
   if(!testIds)testIds=PLAY_DECKS.map(k=>{const p=playable(k);return p[Math.floor(Math.random()*p.length)]});
   $('#test-charge').innerHTML=chargeHTML(testIds.map(card),4);
   const all=allCards();
-  const decks=[['all','All'],['crime','Crime'],['place','Place'],['evidence','Evidence'],['twist','Twist'],['extra','Gavel and Plea Bargain']];
+  const decks=[['all','All'],['crime','Crime'],['place','Place'],['evidence','Evidence'],['twist','Twist'],['extra','Gavel']];
   $('#deck-chips').innerHTML=decks.map(d=>`<button class="chip" data-action="filt-deck" data-v="${d[0]}" id="chip-d-${d[0]}" aria-pressed="${filt.deck===d[0]}">${d[1]}</button>`).join('');
   const sts=[['all','Any status'],['','Unreviewed'],['approved','Approved'],['needs','Needs work'],['cut','Cut']];
   $('#status-chips').innerHTML=sts.map(s=>`<button class="chip" data-action="filt-status" data-v="${s[0]}" id="chip-s-${s[0]||'none'}" aria-pressed="${filt.status===s[0]}">${s[1]}</button>`).join('');
@@ -1002,13 +1064,13 @@ function renderCards(){
     `<div class="gallery">${list.map(c=>`<button class="cardbtn ${c.status==='cut'?'is-cut':''}" data-action="edit" data-id="${c.id}" id="open-${c.id}" aria-label="Edit ${esc(c.name)}">${cardFace(c)}<span class="status"><i class="dot dot--${c.status||'none'}"></i>${STATUS[c.status]}${c.edited?' · edited':''}${c.qty>1?' · ×'+c.qty:''}</span></button>`).join('')}</div>`;
 }
 function cardTable(list,stats){
-  return `<div class="scroll"><table class="hist"><thead><tr><th>ID</th><th>Name</th><th>Deck</th><th>Type</th><th>Qty</th><th>Card text</th><th>Points</th>${stats?'<th>Status</th><th>Drawn</th><th>Acquitted</th><th>Swapped out</th>':''}</tr></thead><tbody>
-  ${list.map(c=>{const s=review.stats[c.id]||{};return `<tr><td class="mono">${c.id}</td><td><strong>${esc(c.name)}</strong></td><td>${DECK[c.deck].name}</td><td>${DECK[c.deck].type}</td><td>${c.qty}</td><td style="min-width:16rem">${esc(c.text)}</td><td>${c.deck==='crime'?'1 if acquitted':'None'}</td>${stats?`<td><button class="btn btn--sm btn--ghost" data-action="edit" data-id="${c.id}" id="row-${c.id}">${STATUS[c.status]}</button></td><td>${s.drawn||0}</td><td>${s.won||0}</td><td>${s.swapped||0}</td>`:''}</tr>`}).join('')}
-  <tr><td colspan="4"><strong>Total</strong></td><td><strong>${list.reduce((a,c)=>a+c.qty,0)}</strong></td><td colspan="${stats?6:2}"></td></tr></tbody></table></div>`;
+  return `<div class="scroll"><table class="hist"><thead><tr><th>ID</th><th>Name</th><th>Deck</th><th>Type</th><th>Qty</th><th>Card text</th><th>Points</th>${stats?'<th>Status</th><th>Drawn</th><th>Kept</th><th>Convicted</th><th>Swapped out</th>':''}</tr></thead><tbody>
+  ${list.map(c=>{const s=review.stats[c.id]||{};return `<tr><td class="mono">${c.id}</td><td><strong>${esc(c.name)}</strong></td><td>${DECK[c.deck].name}</td><td>${DECK[c.deck].type}</td><td>${c.qty}</td><td style="min-width:16rem">${esc(c.text)}</td><td>${c.deck==='crime'?'1 if convicted':'None'}</td>${stats?`<td><button class="btn btn--sm btn--ghost" data-action="edit" data-id="${c.id}" id="row-${c.id}">${STATUS[c.status]}</button></td><td>${s.drawn||0}</td><td>${s.kept||0}</td><td>${s.won||0}</td><td>${s.swapped||0}</td>`:''}</tr>`}).join('')}
+  <tr><td colspan="4"><strong>Total</strong></td><td><strong>${list.reduce((a,c)=>a+c.qty,0)}</strong></td><td colspan="${stats?7:2}"></td></tr></tbody></table></div>`;
 }
 function renderRulesTable(){
   const all=allCards(),n=k=>all.filter(c=>c.deck===k).reduce((a,c)=>a+c.qty,0);
-  $('#count-line').textContent=`${all.reduce((a,c)=>a+c.qty,0)} cards: ${PLAY_DECKS.map(k=>n(k)+' '+DECK[k].name).join(', ')}, ${n('gavel')} Gavel and ${n('bargain')} Plea Bargains.`;
+  $('#count-line').textContent=`${all.reduce((a,c)=>a+c.qty,0)} cards: ${PLAY_DECKS.map(k=>n(k)+' '+DECK[k].name).join(', ')} and ${n('gavel')} Gavel.`;
   const combos=$('#combo-count');if(combos)combos.textContent=PLAY_DECKS.reduce((a,k)=>a*playable(k).length,1).toLocaleString('en-US');
   $('#rules-table').innerHTML=cardTable(all,false);
 }
@@ -1044,21 +1106,20 @@ function deckFileText(f){
   const block=k=>`PleadTheFilth.deck("${k}", \`\n${allCards().filter(c=>c.deck===k).map(line).join('\n')}\n\`);\n`;
   if(f==='special')return `// ===================================================================
 // PLEAD THE FILTH: SPECIAL CARDS
-// The Gavel and the Plea Bargain. These are rules cards, not scenarios.
+// The Gavel. It is a rules card, not a scenario.
 // ===================================================================
 //
 // HOW TO EDIT THIS FILE
 // - Same format as the deck files:   ID | Card name | Card text
 // - An optional last column sets how many copies are printed, written
-//   as x and a number, e.g. "| x6". Without it a card is printed once.
+//   as x and a number, e.g. "| x2". Without it a card is printed once.
 // - Don't use the | or \` characters inside a card.
-// - The game expects exactly one "gavel" card and one "bargain" card.
-//   Change their wording freely, but don't add more.
+// - The game expects exactly one "gavel" card. Change its wording
+//   freely, but don't add more.
 //
 // Save this file and reload the game to see your changes.
 
-${block('gavel')}
-${block('bargain')}`;
+${block('gavel')}`;
   const h=DECK_HEAD[f];
   return `// ===================================================================
 // PLEAD THE FILTH: ${h[0]}
@@ -1106,24 +1167,24 @@ function buildPrint(){
 
 /* ---------- events ---------- */
 function act(a,el){
-  const d=g&&g.phase==='hearing'?g.order[g.turn]:null,sh=d!=null?g.sheets[d]:null;
   switch(a){
     case 'add-player':setup.names.push('Player '+(setup.names.length+1));applyPreset();break;
     case 'remove-player':setup.names.splice(+el.dataset.i,1);setup.firstJudge='random';applyPreset();break;
     case 'preset':setup.preset=el.dataset.p;applyPreset();break;
     case 'deal-sample':dealSample();break;
     case 'start':startGame();break;
-    case 'resume-game':g=ls.get('ptf-game');if(g&&g.timer&&g.timer.running&&g.timer.endsAt<Date.now())endPlea(true);break;
-    case 'discard-game':ls.del('ptf-game');break;
-    case 'flip':{const i=+el.dataset.i;if(sh&&g.step==='charges'&&sh.up[i]===false){sh.up[i]=true;g.fresh=i;if(sh.up.every(Boolean))g.step='ready'}break}
-    case 'bargain':g.step='swap';g.fresh=-1;break;
-    case 'cancel-swap':g.step='ready';break;
-    case 'swap':{const i=+el.dataset.i,k=PLAY_DECKS[i],old=sh.cards[i];bump(old,'swapped');g.discards[k].push(old);sh.cards[i]=draw(k);sh.up[i]=false;sh.swapped=k;g.bargains[d]=false;g.fresh=-1;g.step='charges';persistReview();break}
-    case 'start-plea':g.step='plea';g.fresh=-1;g.timer={total:pleaSeconds(),remaining:pleaSeconds(),running:true,endsAt:Date.now()+pleaSeconds()*1000};break;
-    case 'pause':g.timer.remaining=Math.max(0,(g.timer.endsAt-Date.now())/1000);g.timer.running=false;stopTick();break;
-    case 'resume':g.timer.running=true;g.timer.endsAt=Date.now()+g.timer.remaining*1000;break;
-    case 'rest':endPlea(false);break;
-    case 'next-hearing':nextHearing();break;
+    case 'resume-game':g=ls.get('ptf-game2');if(!g||g.v!==2)g=null;break;
+    case 'discard-game':ls.del('ptf-game2');break;
+    case 'begin-turn':if(g.step==='pass')beginTurn();break;
+    case 'deal':if(g.step==='deal')dealOne(+el.dataset.i);break;
+    case 'deal-rest':if(g.step==='deal'){g.cur.up=g.cur.up.map(u=>u.map(()=>true));g.step='choose'}break;
+    case 'keep':if(g.step==='choose')keepCase(+el.dataset.c);break;
+    case 'swap-card':if(g.step==='swap'){swapCard(+el.dataset.i);persistReview()}break;
+    case 'no-swap':if(g.step==='swap')g.step='done';break;
+    case 'pick':if(g.step==='pick')pickOption(+el.dataset.o);break;
+    case 'end-turn':if(g.step==='done')endTurn();break;
+    case 'reveal-case':if(!g.shown)g.shown='fresh';break;
+    case 'next-case':nextCase();break;
     case 'open-ballot':g.ballotOpen=true;break;
     case 'vote':castVote(+el.dataset.t);break;
     case 'rule':resolve(+el.dataset.t);break;
@@ -1133,8 +1194,8 @@ function act(a,el){
     case 'new-setup':g=null;sample=null;break;
     case 'quit':confirmQuit=true;break;
     case 'quit-no':confirmQuit=false;break;
-    case 'quit-yes':confirmQuit=false;stopTick();g=null;ls.del('ptf-game');break;
-    case 'flag':{const id=el.dataset.id,o=review.cards[id]||(review.cards[id]={});o.status=o.status==='needs'?'':'needs';if(g)g.fresh=-1;persistReview();break}
+    case 'quit-yes':confirmQuit=false;g=null;ls.del('ptf-game2');break;
+    case 'flag':{const id=el.dataset.id,o=review.cards[id]||(review.cards[id]={});o.status=o.status==='needs'?'':'needs';persistReview();break}
     default:return false;
   }
   ls.set('ptf-setup',setup);saveGame();renderPlay();return true;
@@ -1181,10 +1242,9 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='set-rounds'){setup.rounds=Math.min(12,Math.max(1,parseInt(t.value,10)||1));setup.preset='custom'}
-  else if(t.id==='set-plea'){setup.plea=+t.value;setup.preset='custom'}
+  else if(t.id==='set-cases'){setup.cases=+t.value;setup.preset='custom'}
+  else if(t.id==='set-swap'){setup.swap=+t.value;setup.preset='custom'}
   else if(t.id==='set-judge')setup.firstJudge=t.value;
-  else if(t.id==='set-cross'){setup.cross=t.checked;setup.preset='custom'}
-  else if(t.id==='set-bargain')setup.bargain=t.checked;
   else if(t.id==='io-format'){ioFill();return}
   else if(t.dataset.name!=null){ // keep focus in the name fields: only relabel the Judge picker
     const sel=$('#set-judge');if(sel)[...sel.options].forEach(o=>{if(o.value!=='random')o.textContent=setup.names[+o.value]||'Player '+(+o.value+1)});return}
@@ -1198,12 +1258,12 @@ window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
 function showLoadError(){
   $('main').innerHTML=`<div class="panel stack" style="max-width:720px;margin-top:24px"><h2 style="margin:0">The card decks did not load</h2>
     <ul style="margin:0;padding-left:1.2em;display:grid;gap:6px">${deckProblems.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
-    <p class="note">The cards live in the <code>cards</code> folder next to this page: crime.js, place.js, evidence.js, twist.js and special.js. Fix the file named above, save it, and reload this page.</p></div>`;
+    <p class="note">The cards live in the <code>cards</code> folder next to this page: crime.js, place.js, evidence.js, twist.js and special.js (the Gavel). Fix the file named above, save it, and reload this page.</p></div>`;
 }
 async function start(data){
   const st=await loadDecks();
   if(!st.ready){showLoadError();return}
-  if(data&&data.g){g=data.g;if(g.timer&&g.timer.running&&g.timer.endsAt<Date.now())endPlea(true)}
+  if(data&&data.g&&data.g.v===2)g=data.g; // games from before the three-case rules are dropped
   if(!setup.names||setup.names.length<3)setup.names=['Player 1','Player 2','Player 3'];
   $('#anatomy-card').innerHTML=cardFace(card((BASE_BY_ID.C08?'C08':playable('crime')[0])),{extra:
     '<span class="pin" style="left:-4cqw;top:3cqw">1</span><span class="pin" style="left:50cqw;top:3cqw">2</span><span class="pin" style="right:-4cqw;top:3cqw">3</span>'+
@@ -1215,7 +1275,17 @@ async function start(data){
 const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot)try{hot.snapshot(()=>({g}))}catch(e){}
 if(hot&&hot.ready)hot.ready(start);else start((hot&&hot.data)||{});
-window.PTF={parseDecks,deckFileText:k=>deckFileText(k)}; // used by tools/smoke-test.js
+window.PTF={parseDecks,deckFileText:k=>deckFileText(k),
+  cardAudit(){ // every playable card is in exactly one place: a deck, a discard pile, a hand, the current turn or a rap sheet
+    if(!g)return null;const seen={},dup=[];
+    const add=id=>{if(id==null)return;if(seen[id])dup.push(id);seen[id]=1};
+    PLAY_DECKS.forEach(k=>{g.decks[k].forEach(add);g.discards[k].forEach(add)});
+    if(g.phase!=='reveal')Object.values(g.hands).forEach(h=>h.forEach(add)); // on the verdict screen hands are already discarded, kept only for display
+    g.scores.forEach(s=>s.forEach(add));
+    if(g.cur){g.cur.cases.forEach(c=>c.forEach(add));(g.cur.options||[]).forEach(add)}
+    const missing=PLAY_DECKS.flatMap(k=>playable(k)).filter(id=>!seen[id]);
+    return {dup,missing};
+  }}; // used by tools/smoke-test.js
 })();
 </script>
 

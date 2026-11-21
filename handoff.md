@@ -9,9 +9,14 @@ Design a complete **physical** party card game that can be printed and played in
 any printing, the owner wants a **digital prototype playable in a browser by three people**, so the
 rules and every card can be tried, edited and approved first.
 
-The owner's concept, in their words: players draw one card from each of four decks, which together
-describe a ridiculous scenario they have been arrested for. They then explain themselves as if in
-front of a judge. Once everyone has had a turn, players vote for the funniest and best explanation.
+The owner's original concept: players draw one card from each of four decks, which together
+describe a ridiculous scenario they have been arrested for, then explain themselves as if in front
+of a judge, and everyone votes for the funniest explanation.
+
+The owner has since **changed the core rules** (see request 6 below). The game is now about
+*building* the most ridiculous case, not explaining it: each turn a player draws three cases, keeps
+one, may swap one card, and holds it secretly; then every case is revealed and the players vote.
+There is no spoken defence any more.
 
 ### Owner's brief
 
@@ -27,70 +32,94 @@ front of a judge. Once everyone has had a turn, players vote for the funniest an
 
 ### Decisions the owner made when asked
 
-1. **Play setup:** one shared screen. Everyone sits around one device, pleas are spoken aloud, and
-   the device is passed for votes. Separate-device online play was not chosen.
+1. **Play setup:** one shared screen. Everyone sits around one device and the device is passed for
+   private turns and votes. Separate-device online play was not chosen.
 2. **Humor level:** raunchy and dark, in Joking Hazard territory. Explicit sex jokes, drugs, bodily
    functions and dark humor are on the cards themselves.
 3. **Deck structure:** Crime, Place, Evidence, Twist.
+4. **Details of the three-case rules** (asked when the owner requested them):
+   - A player **keeps one case whole**, exactly as dealt. No mixing cards between cases.
+   - The end-of-turn swap is **"pick of 3"**: discard one card, look at the top three of that
+     deck, keep one.
+   - Phase two is **reveal and vote only**, with no speeches.
+   - The **Plea Bargain cards are removed**, because the swap replaces them.
 
 ### Requests the owner made after the first version
 
 1. **Push to GitHub.** Done; see section 11.
 2. **A handoff file for other AI agents.** This file. Keep it current whenever the project changes.
-3. **Tap-to-deal hearings.** "A deck above the scene that the user has to tap, and each card turns
-   over to the row below it, so the user feels like they are painting the scene." Done; see
-   section 4, "How a hearing is dealt".
+3. **Tap-to-deal.** "A deck above the scene that the user has to tap, and each card turns over to
+   the row below it, so the user feels like they are painting the scene." Done, and kept in the new
+   rules; see section 4, "How a turn works".
 4. **Cards in separate, human-editable files.** "Decouple the values behind each of the card decks
    into individual files that I can edit to add more scenarios", so the cards are not held in
    `index.html`. Done; see section 4, "The deck files".
 5. **Keep this handoff updated with every change from now on.** Standing instruction. `CLAUDE.md`
    in the repository repeats it for future agents.
+6. **New core rules.** In the owner's words: "When a player draws a card from each deck, we will
+   refer to that as a case. Every turn a player takes consists of drawing three cases. At the end of
+   the player's turn, they are allowed to replace a card from any case from any of the playing
+   decks. The goal is for the player to create the most ridiculous case and hold this in their hand
+   until all players have taken their turns. The game then enters a phase two where everyone shows
+   their case and people act as a prosecutor who is going to pick the most humorous and ridiculous
+   one presented by the players. One with the most votes wins that round." Done, with the details in
+   decision 4 above. See section 2.
 
 ### Deliverables the owner asked for
 
 Core pitch and win condition, full rules, complete card list as a table, balance check, example
 round with three players, edge-case FAQ, card layout for a 2.5 × 3.5 inch card, and a playtest plan.
-All eight exist and live in the Rulebook tab of the prototype (see section 4).
+All eight exist and live in the Rulebook tab of the prototype (see section 4). All eight were
+rewritten for the three-case rules.
 
 ## 2. The game as designed
 
 **Working title:** Plead the Filth. It has **not** been checked for trademark conflicts.
 
-**Components (87 cards plus a phone timer):**
+**Components (81 cards):**
 
 - 80 scenario cards: 20 each of Crime, Place, Evidence, Twist
 - 1 Gavel card, which marks the Judge
-- 6 Plea Bargain cards, one per player
 
-**A round:** one hearing per player, then one vote.
+**A case** is one card from each deck, read as one sentence: "You were arrested for *[Crime]*
+*[Place]*. You were found in possession of *[Evidence]*. And to make matters worse: *[Twist]*."
 
-1. The player on the Judge's left pleads first. Play passes left, so the Judge pleads last.
-2. In each hearing the **Prosecutor** (the player on the Defendant's left) turns over one card from
-   each deck and reads them as one sentence: "You were arrested for *[Crime]* *[Place]*. You were
-   found in possession of *[Evidence]*. And to make matters worse: *[Twist]*."
-3. The Defendant may use their **Plea Bargain** once per game to swap one card for a new one from the
-   same deck. They must keep the replacement.
-4. The Defendant gets a **60-second plea**. Every card is true. They may explain it but not deny it.
-5. The Prosecutor asks **one follow-up question** (cross-examination).
-6. After all hearings, everyone votes for the funniest plea. No self-votes.
-7. The winner is acquitted and keeps their **Crime card as a 1-point trophy**. All other cards are
-   discarded. The winner takes the Gavel.
+**A round** has two phases.
+
+*Phase one, building cases.* The player on the Judge's left goes first; play passes left, so the
+Judge goes last. Cards stay hidden from other players throughout. On a turn:
+
+1. **Deal three cases:** three rows of four cards face down, one card from each deck per row.
+2. **Keep one case** exactly as dealt. No moving cards between rows. The other rows are discarded.
+3. **Swap one card (optional):** discard it, look at the top three cards of the same deck, keep
+   one, discard the other two.
+4. **Lock it in:** hold the case face down until the trial.
+
+*Phase two, the trial.* Starting left of the Judge, each player lays their case face up and the
+player on their left reads it out like a prosecutor. The owner offers no defence. Then everyone
+points at the most ridiculous case other than their own. The most votes is **Guilty**: that player
+wins the round and keeps the Crime card on their **rap sheet** (1 point). Everything else is
+discarded. The winner takes the Gavel.
 
 **Vote ties:** the Judge's vote decides among the tied players. If the Judge voted for someone
 outside the tie, the Judge picks again from the tied players. The Judge can never rule for
 themself, so a tied Judge always loses. Because the Gavel passes to each winner, this is a mild
 handicap on whoever is ahead.
 
-**End of game:** fixed number of rounds, most trophies wins. Standard rounds by player count are
-3 players: 6, 4 players: 5, 5 players: 4, 6 players: 3. Long games are 8, 7, 5 and 4 rounds.
-A speed trial is 1 round with 30-second pleas and no cross-examination.
+**End of game:** fixed number of rounds, most convictions wins. Standard rounds by player count
+are 3 players: 6, 4 players: 5, 5 players: 4, 6 players: 3. Long games are 8, 7, 5 and 4 rounds.
+A speed trial is 1 round with two cases per turn and a blind swap (about 5 minutes).
 
-**Final ties:** a Supreme Court showdown between the tied leaders. Fresh charge sheets, 30-second
-pleas, no Plea Bargains, no cross-examination. With two finalists only the other players vote. With
-three or more, everyone votes for a finalist other than themself.
+**Final ties:** a Supreme Court showdown. Each tied leader takes one more normal turn, then their
+cases go on trial. With two finalists only the other players vote. With three or more, everyone
+votes for a finalist other than themself.
 
-**Table rule:** any player can ask for any card to be struck, no explanation needed. Discard and
-redraw. It does not cost a Plea Bargain.
+**Table rule:** any player can ask for any card to be struck, no explanation needed. Discard it
+and replace it from the same deck. It does not count as the player's swap.
+
+**Naming.** Because players now vote *for* the most outrageous case, the winner is "convicted"
+("Guilty" stamp) rather than "acquitted", scores are "convictions" and trophies form a "rap sheet".
+This was Claude's wording choice, not the owner's; change it if the owner prefers otherwise.
 
 The authoritative rules text is the Rulebook tab in `src/plead-the-filth.html`. If this summary and
 the rulebook ever disagree, the rulebook wins.
@@ -99,8 +128,8 @@ the rulebook ever disagree, the rulebook wins.
 
 These were applied when writing all 80 scenario cards. Keep to them when adding or rewording cards.
 
-- **Any card can combine with any other.** There are 160,000 possible charge sheets, so a card must
-  be acceptable next to every card in the other three decks.
+- **Any card can combine with any other.** There are 160,000 possible cases, so a card must be
+  acceptable next to every card in the other three decks.
 - **No children anywhere.** No card names or implies minors, because Crime cards include sex acts.
 - **No real people and no brand names.** Places and props are generic (for example "a moving
   rideshare", "a 24-hour supermarket").
@@ -111,6 +140,8 @@ These were applied when writing all 80 scenario cards. Keep to them when adding 
   stone-cold sober.").
 - **Keep card text under about 90 characters** so it can be read aloud at a glance.
   `node tools/build.mjs` warns about longer scenario cards.
+- **The cards carry all the humour now.** With no spoken defence, a card that only works with a
+  good explanation behind it is a weak card.
 - **Deck size.** The owner's limit for the printed game is 20 cards per deck. The deck files may
   hold more while testing; the Cards tab and the build script say how many to cut.
 
@@ -120,31 +151,37 @@ Everything is in one HTML page with three tabs.
 
 | Tab | What it does |
 | --- | --- |
-| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets, rounds, plea timer, first Judge, and toggles for cross-examination and Plea Bargains. Hearings dealt by hand (see below), Plea Bargain swap, countdown timer with pause, cross-examination prompt. Sequential ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average plea length, tied rounds, Plea Bargains used, per-round history. |
-| **Cards** | All 87 cards drawn in their print layout. Open a card to edit its name and text, set a status (Unreviewed, Approved, Needs work, Cut) and add a note. Cut cards are left out of play. Filters by deck and status, a table view with per-card stats (drawn, acquitted, swapped out), a combo tester that deals random charge sheets, JSON export and import, and 9-up print sheets with backs (standalone copy only). |
-| **Rulebook** | The eight deliverables. The card table in section 3 is generated from live card data, so it reflects edits. |
+| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets (speed, standard, long), rounds, cases per turn (2, 3 or 4), swap mode (look at 3, look at 2, blind, none) and first Judge. Private turns with a pass-the-device screen, tap-to-deal into three cases, keep one, swap. Trial with each case revealed and read out, sequential secret ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average turn length, tied rounds, turns with a swap, per-round history. |
+| **Cards** | All 81 cards drawn in their print layout. Open a card to edit its name and text, set a status (Unreviewed, Approved, Needs work, Cut) and add a note. Cut cards are left out of play. Filters by deck and status, a table view with per-card stats (drawn, kept, convicted, swapped out), a combo tester that deals random cases, deck-file and JSON export and import, and 9-up print sheets with backs (standalone copy only). |
+| **Rulebook** | The eight deliverables, rewritten for the three-case rules. The card table in section 3 is generated from live card data, so it reflects edits. |
 
-During play, each revealed card has a **Flag for rewrite** button that sets its status to Needs work.
+During the trial, each revealed card has a **Flag for rewrite** button that sets its status to
+Needs work.
 
-### How a hearing is dealt
+### How a turn works
 
-The owner asked for dealing to feel like **painting the scene**, so each hearing is built by hand:
-
-1. Four face-down deck piles (Crime, Place, Evidence, Twist) sit in a row at the top, each marked
-   "Tap to draw" with a red outline.
-2. Below them, under a "The scene" divider, are four empty dashed slots in reading order.
-3. Tapping a deck flips its top card over and animates it down into its slot. The deck then dims and
-   shows how many cards are left. Decks can be tapped **in any order**.
-4. The charge sentence under the scene starts as blanks (`[Crime]`, `[Place]` ...) and each part
-   fills in as its card lands.
-5. Once all four are dealt, the Defendant can start the plea or use a Plea Bargain. A Plea Bargain
-   empties the chosen slot and relights that one deck, which is tapped to draw the replacement.
-6. When the plea starts, the decks are hidden and only the scene, sentence and timer remain.
+1. **Pass screen.** "Pass the device to X. Everyone else, look away." X taps "I am X. Start my turn".
+   The three cases are drawn from the decks at this point.
+2. **Deal.** Four face-down deck piles sit at the top, each showing how many cards it still has to
+   deal. Below them are three case panels, each with four empty slots and a charge sentence full of
+   blanks. Tapping a deck flips a card and animates it down into the **first case still missing a
+   card from that deck**, and that part of the sentence fills in. "Deal the rest" finishes at once.
+   Decks can be tapped in any order.
+3. **Choose.** Each case gets a "Keep case N" button. The other cases go to the discard piles.
+4. **Swap.** The kept case is shown with "Swap the Crime / Place / Evidence / Twist" and "Keep it as
+   it is". Swapping discards that card. With pick-of-3, the top three cards of that deck are shown
+   with "Keep this one" buttons and the other two are discarded. With a blind swap the new card is
+   placed straight in.
+5. **Locked in.** "Hide my case and pass to Y", or after the last player "Hide my case and go to
+   trial".
+6. **Trial.** One case at a time: four face-down cards, "Reveal X's case", a staggered flip, the full
+   sentence, and a note naming the reader (the owner's left neighbour). Earlier cases are listed
+   below. After the last case, "Go to the vote".
 
 ### The deck files
 
 All card wording lives in `cards/`, one file per deck, so the owner can add and edit scenarios in
-any text editor. Nothing about the cards is stored in `index.html` or `src/` any more.
+any text editor. Nothing about the cards is stored in `index.html` or `src/`.
 
 | File | Holds |
 | --- | --- |
@@ -152,7 +189,7 @@ any text editor. Nothing about the cards is stored in `index.html` or `src/` any
 | `cards/place.js` | Place deck, IDs P01 upward |
 | `cards/evidence.js` | Evidence deck, IDs E01 upward |
 | `cards/twist.js` | Twist deck, IDs T01 upward |
-| `cards/special.js` | The Gavel (G01) and the Plea Bargain (B01, printed six times) |
+| `cards/special.js` | The Gavel (G01) |
 
 Each file starts with a comment explaining how to edit it, then calls
 ``PleadTheFilth.deck("<deck>", `...`)`` with one card per line:
@@ -165,7 +202,8 @@ Streaking | streaking through a funeral wearing only the casket flag
 - `ID | Card name | Card text`. The ID may be left off; the card then gets the next free number for
   its deck (C21, C22 ...) in file order. The build script prints the number it will get so it can
   be written in.
-- An optional last column `| x6` sets the number of printed copies. Only the Plea Bargain uses it.
+- An optional last column like `| x2` sets the number of printed copies. No card uses it now that
+  the Plea Bargain (which was printed six times) is gone.
 - Lines starting with `#` or `//`, and blank lines, are ignored. `#` is how a card is taken out
   without deleting it.
 - Cards may not contain `|` or a backtick. A backtick breaks the whole file.
@@ -218,9 +256,9 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
   blocks those scripts) and the page is not on `file:`, it fetches the missing files as text and
   pulls out the `PleadTheFilth.deck(...)` blocks with a regular expression. `parseDecks()` then turns
   the text into `BASE`, an array of `{ id, deck, name, text, qty? }`, plus `BASE_BY_ID`, and collects
-  problems (bad lines, duplicate IDs). If a scenario deck, the Gavel or the Plea Bargain is missing,
-  `showLoadError()` replaces the page with a list of what went wrong. Otherwise problems are shown
-  at the top of the Cards tab.
+  problems (bad lines, duplicate IDs). If a scenario deck or the Gavel is missing, `showLoadError()`
+  replaces the page with a list of what went wrong. Otherwise problems are shown at the top of the
+  Cards tab.
 - **Two parsers.** `parseDecks()` in the page and the parser in `tools/build.mjs` implement the same
   rules. Change both together. The header comments are also duplicated: `deckFileText()` in the page
   rebuilds them for the export, so editing a file's header means editing `DECK_HEAD` (or the special
@@ -228,39 +266,53 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
 - **Removed cards.** If a saved game or saved review refers to an ID that is no longer in the files,
   `card(id)` returns a "Removed card" placeholder instead of crashing.
 - **Review state** is `review = { cards: { [id]: { name?, text?, status?, note? } }, stats: { [id]:
-  { drawn, won, swapped } }, updatedAt }`. It holds only differences from the base card data.
-  `card(id)` merges base and overrides.
-- **Game state** is the single object `g`. Key fields: `names`, `n`, `rounds`, `plea`, `cross`,
-  `round`, `judge`, `order`, `turn`, `sheets`, `votes`, `voters`, `scores`, `bargains`, `decks`,
-  `discards`, `history`, `pleaLog`, `phase` (`hearing`, `vote`, `tie`, `reveal`, `final`), `step`
-  within a hearing (`charges`, `ready`, `swap`, `plea`, `after`), `showdown`, `champion`.
-- **A charge sheet** is `g.sheets[player] = { cards: [4 card ids], up: [4 booleans], swapped }`.
-  All four cards are drawn from the decks when the hearing starts; `up[i]` turns true when the
-  player taps deck `i` and that card is dealt into the scene. `step` stays `charges` until every
-  `up` is true, then becomes `ready`. A Plea Bargain replaces `cards[i]`, sets `up[i]` back to
-  false and returns `step` to `charges`. Games saved before this change used a `flipped` count;
-  `viewHearing` converts it to `up` on load.
-- **Game flow functions:** `startGame`, `startRound`, `startHearing`, `endPlea`, `nextHearing`,
-  `castVote`, `tally`, `resolve`, `nextRound`, `startShowdown`. Tie logic is in `tally`.
-- **Rendering:** each view is a function returning an HTML string (`viewSetup`, `viewHearing`,
-  `viewVote`, `viewTie`, `viewReveal`, `viewFinal`), set by `renderPlay`. Card faces and backs come
-  from `cardFace` and `cardBack`. Events use delegation on `data-action` attributes, handled in
-  `act` (game) and `actCards` (Cards tab). A deck pile carries `data-action="flip"` and
-  `data-i` (0 Crime, 1 Place, 2 Evidence, 3 Twist).
-- **The deal animation** is `animateDraw(i)`, called by `renderPlay` after it redraws the hearing.
-  The new card is rendered in its slot inside a `.flipper` holding its face and a temporary back.
-  The Web Animations API moves it from the deck's position and size to the slot while rotating it
-  from back to face (640 ms), then removes the temporary back. With reduced motion, or without
-  `Element.animate`, the card simply appears.
-- **Storage:** `localStorage` keys `ptf-review`, `ptf-setup` and `ptf-game` (a game in progress can
-  be resumed). When the page runs as an artifact, review state is also written to the page database
-  at document `review/cards`; the newer of the two copies wins on load. In the standalone copy
-  `window.claude` does not exist and only `localStorage` is used.
+  { drawn, kept, won, swapped } }, updatedAt }`. It holds only differences from the base card data.
+  `card(id)` merges base and overrides. `kept` counts cards in the case a player chose to keep; `won`
+  counts cards on convicted cases.
+- **Settings** are `setup = { names, preset, rounds, cases, swap, firstJudge }`. `swap` is the number
+  of cards looked at when swapping: 3 or 2 (pick one), 1 (blind), 0 (no swap). Presets only set
+  `rounds`, `cases` and `swap`.
+- **Game state** is the single object `g`, with `v: 2` to mark the three-case rules. Key fields:
+  `names`, `n`, `rounds`, `casesPer`, `swapPick`, `round`, `judge`, `order` (turn order, starting left
+  of the Judge), `turn`, `phase`, `step`, `cur`, `hands`, `trialPos`, `shown`, `votes`, `voters`,
+  `scores` (each player's rap sheet, as Crime card IDs), `decks`, `discards`, `history`, `turnLog`
+  (seconds per turn), `swaps`, `showdown`, `champion`.
+- **Phases:** `turn` → `trial` → `vote` → (`tie`) → `reveal` (round result) → next round, or `final`.
+  Within `turn`, `step` is `pass` → `deal` → `choose` → `swap` → (`pick`) → `done`.
+- **The turn in progress** is `g.cur = { cases: [[4 ids] × casesPer], up: [[4 booleans] × casesPer],
+  kept, swapAt, options, startedAt }`. All cases are drawn when the turn begins; `up[c][i]` turns true
+  as each card is dealt. After `keepCase(c)`, `cur.cases` holds only the kept case. During `pick`,
+  the swapped slot is `null` and `cur.options` holds the cards to choose from. `endTurn()` copies the
+  case into `g.hands[player]` and clears `cur`.
+- **Card bookkeeping.** Every playable card is always in exactly one place: a deck, a discard pile,
+  a hand, `g.cur`, or a rap sheet. `resolve()` discards every case except the winner's Crime as soon
+  as the vote is decided; the hands are still shown on the verdict screen but are already in the
+  discard piles, and `nextRound()` clears them. `window.PTF.cardAudit()` checks the rule, and the
+  smoke test calls it after every action.
+- **Game flow functions:** `startGame`, `startRound`, `beginTurn`, `dealOne`, `keepCase`, `swapCard`,
+  `pickOption`, `endTurn`, `nextCase`, `castVote`, `tally`, `resolve`, `nextRound`, `startShowdown`.
+  Tie logic is in `tally`. `draw()` reshuffles a deck's discard pile when it runs out.
+- **Rendering:** each view is a function returning an HTML string (`viewSetup`, `viewTurn`,
+  `viewTrial`, `viewVote`, `viewTie`, `viewReveal`, `viewFinal`), chosen by `renderPlay`. `caseFile()`
+  draws one case panel. Card faces and backs come from `cardFace` and `cardBack`. Events use
+  delegation on `data-action` attributes, handled in `act` (game) and `actCards` (Cards tab). A deck
+  pile carries `data-action="deal"` and `data-i` (0 Crime, 1 Place, 2 Evidence, 3 Twist).
+- **The deal animation** is `animateDraw(c, i)`, called by `renderPlay` after it redraws the turn.
+  The new card is rendered in slot `slot-<case>-<deck index>` inside a `.flipper` holding its face
+  and a temporary back. The Web Animations API moves it from the deck's position and size to the
+  slot while rotating it from back to face (640 ms), then removes the temporary back. The trial
+  reveal uses a CSS animation (`.flipper.is-turning`) staggered 180 ms per card. With reduced motion,
+  or without `Element.animate`, cards simply appear.
+- **Storage:** `localStorage` keys `ptf-review`, `ptf-setup` and `ptf-game2` (a game in progress can
+  be resumed). Games saved under the old rules (`ptf-game`, or any `g` without `v: 2`) are ignored.
+  When the page runs as an artifact, review state is also written to the page database at document
+  `review/cards`; the newer of the two copies wins on load. In the standalone copy `window.claude`
+  does not exist and only `localStorage` is used.
 - **Printing** is offered only in the standalone copy, because the artifact viewer blocks the print
   dialog.
-- **Live counts.** The rulebook's card-list summary and the "possible charge sheets" figure in the
-  balance check are computed from the deck files. Other numbers in the rulebook prose (for example
-  "four decks of 20") describe the printed design and are written by hand.
+- **Live counts.** The rulebook's card-list summary and the "possible cases" figure in the balance
+  check are computed from the deck files. Other numbers in the rulebook prose (for example "four
+  decks of 20") describe the printed design and are written by hand.
 
 ### Gotchas
 
@@ -270,9 +322,14 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
 - In the artifact viewer, `alert`, `confirm`, `prompt`, `window.print` and file downloads do
   nothing. Confirmations are built into the page (see the two-step End game button).
 - Cards keep their own paper and ink colors in dark theme on purpose. They are physical objects.
-- The deal animation measures positions after a full re-render. If the hearing view's markup
-  changes, keep the `id="deck-<deck>"` piles and `id="slot-<i>"` slots or `animateDraw` falls back
-  to no animation.
+- The deal animation measures positions after a full re-render. If the turn view's markup changes,
+  keep the `id="deck-<deck>"` piles and `id="slot-<case>-<i>"` slots or `animateDraw` falls back to
+  no animation.
+- Case panels always show four cards in a row, even on a phone (`.casefile .sheet` overrides the
+  two-column phone layout). The card text is tiny there; the sentence under each case is what
+  players read.
+- `viewTrial` sets `g.shown` from `'fresh'` to `true` while rendering, so the reveal animation plays
+  once. This is the one place a view changes state.
 
 ## 6. Build and test
 
@@ -286,12 +343,16 @@ backtick is caught. It prints the count per deck, warns about decks over 20 card
 over 90 characters and cards with no ID, and stops without rebuilding on errors such as duplicate
 IDs or malformed lines.
 
-The smoke test needs Playwright with Chromium. It plays 14 full games at 3 to 6 players, tapping the
-decks in a random order and voting at random. It exercises the Plea Bargain redraw, the Cards
-editor, the table view and the rulebook table, checks for horizontal overflow at phone width, and
-reports any page errors. It also saves screenshots, including the hearing before dealing
-(`deal-start.png`), a card mid-flight (`deal-mid.png`), two cards dealt (`deal-two.png`) and a
-half-dealt hearing on a phone in dark theme (`phone-dealing.png`).
+The smoke test needs Playwright with Chromium. It plays 14 full games at 3 to 6 players across the
+speed, standard and long presets. Each turn it deals in a random order (sometimes finishing with
+"Deal the rest"), keeps a random case, swaps about 60% of the time, and votes at random. After
+every action it runs `PTF.cardAudit()` and fails if any card is lost or duplicated. It prints how
+many games went to a Supreme Court showdown. It also exercises the Cards editor, the table view and
+the rulebook table, checks for horizontal overflow at phone width, and reports any page errors.
+Screenshots include the pass screen (`turn-pass.png`), a card mid-flight (`deal-mid.png`), a
+part-dealt turn (`deal-some.png`), choosing (`choose.png`), the swap and pick steps (`swap.png`,
+`pick.png`), a revealed case at trial (`trial.png`), a ballot, the verdict, and a turn on a phone in
+dark theme (`phone-dealing.png`, `phone.png`).
 
 It also checks the deck files: the Cards-tab export of each deck matches the file on disk; a copy
 of the game with one card commented out and two added without IDs shows the new cards as C21 and
@@ -303,63 +364,66 @@ files (the path a locked-down host would take).
 
 **Verified**
 
-- 14 scripted games at 3 to 6 players, across speed, standard and long presets, all ran to a winner
-  with no script errors. This covers mechanics only.
+- 14 scripted games at 3 to 6 players under the three-case rules, across speed, standard and long
+  presets, all ran to a winner with no script errors and no lost or duplicated cards. Six of them
+  went to a Supreme Court showdown. This covers mechanics only.
 - Layout checked at desktop width in light theme and phone width (390 px) in dark theme, with no
-  horizontal overflow on any tab, including a half-dealt hearing.
-- Tap-to-deal: decks drawn in random order across all 14 games, and Plea Bargain redraws, all
-  reached the plea correctly.
-- Deck counts: 20 per scenario deck, 87 cards in total.
+  horizontal overflow on any tab, including a turn in progress.
+- Deck counts: 20 per scenario deck and 1 Gavel, 81 cards in total.
 - Deck files: loading from disk, adding cards with and without IDs, commenting cards out, the
   error page for a broken file, the export round trip, and the fetch fallback, all as described
-  in section 6. The hosted copy's file list was confirmed to contain all five deck files.
+  in section 6.
+- A bug found while testing the new rules is fixed: going into a showdown used to put the last
+  round's cases into the discard piles a second time, duplicating cards.
 
 **Not verified**
 
-- **Whether the game is fun.** No humans have played it. This is the point of the prototype.
-- **Saving card edits to the hosted page.** The page database was empty when checked, which is
-  expected before any edit, but a real save and reload has not been observed.
+- **Whether the game is fun.** No humans have played it, under either set of rules. This is the
+  point of the prototype. The three-case rules put all the humour on the cards, so card quality is
+  now the main thing to test.
+- **Saving card edits to the hosted page.** A real save and reload has not been observed.
 - **Printed output.** The print sheets have not been test-printed. Front and back alignment for
   double-sided printing is untested.
 - **The title.** No trademark search has been done.
 - **The hosted copy loading its deck files.** The files are published beside the page, but the
-  page has not been watched loading there. Whether the viewer runs them as scripts or the page
-  falls back to fetching them is unknown; either path works in testing.
-- **How the deal animation feels.** It has only been checked from still screenshots taken mid-move,
-  not watched in motion or tried on a touch screen.
+  page has not been watched loading there. Either loading path works in testing.
+- **How the animations feel.** Checked only from still screenshots, not watched in motion or tried
+  on a touch screen.
+- **The time estimates** for the new rules (rulebook table, setup screen) are guesses based on
+  assumed turn lengths, not measured.
 
 ## 8. Known gaps
 
-- The **strike rule** is in the rulebook but has no button in the app. A struck card currently has
-  to be handled with a Plea Bargain or by ending the hearing.
-- **Open decision: dealing order.** The app lets the four decks be drawn in any order, but the
-  rulebook (section 2) still says the Prosecutor turns them over Crime, Place, Evidence, Twist. The
-  owner has been asked whether to lock the app to that order or loosen the rule, and has not
-  answered. Until they do, leave both as they are.
+- The **strike rule** is in the rulebook but has no button in the app.
 - The app uses **sequential ballots** with a pass-the-device step. The physical rule is simultaneous
   pointing. The outcomes are the same but the feel differs.
-- Several tuning options in the playtest plan are **not settings in the app**: two cross-examination
-  questions, a final round worth 2 points, passing the Gavel left instead of to the winner, two Plea
-  Bargains per player, and one point per vote received. Rounds, plea timer, cross-examination on or
-  off and Plea Bargains on or off are settings.
+- **Downtime.** Turns are private and one at a time, as the owner described. With five or six
+  players this means a long wait between turns. The playtest plan suggests a simultaneous-building
+  variant; it is not in the app.
+- Several tuning options in the playtest plan are **not settings in the app**: simultaneous
+  building, a 30-second spoken defence, a final round worth 2 points, passing the Gavel left instead
+  of to the winner, two swaps per turn, and one point per vote received. Rounds, cases per turn and
+  swap mode are settings.
 - A **player leaving mid-game** is covered in the FAQ but not supported in the app.
 - Cards have **no illustrations**. The art window shows the deck icon as a placeholder.
 - No online or multi-device play. This was a deliberate choice by the owner.
+- The earlier open question about **dealing order** (any order in the app, fixed order in the
+  rules) no longer applies: under the three-case rules a player deals their own cases privately and
+  the order does not matter.
 
 ## 9. Suggested next steps
 
 1. The owner plays three games with three people, following the playtest plan in the Rulebook tab,
-   and marks cards as Approved, Needs work or Cut.
+   and marks cards as Approved, Needs work or Cut. Watch average turn time and downtime first.
 2. Read the owner's review state (from the hosted page's `review/cards` document, or from a JSON
    export pasted by the owner) and write the approved wording into `cards/*.js`. Cut cards can be
    commented out with `#`. Run the build, commit, and republish the hosted copy with the deck files.
-3. Replace cut cards so each deck is back to 20, following the content rules in section 3. The
-   owner may also add cards to the deck files directly; check them against the same rules.
+3. Use the Kept column in the Cards tab's table view: cards drawn often but rarely kept are the
+   weakest. Replace cut and weak cards so each deck is back to 20, following section 3.
 4. Adjust rules from the playtest numbers. Change one number per game.
-5. Settle the dealing-order decision in section 8 and make the app and rulebook agree.
-6. Close whichever other gaps in section 8 the owner cares about. The strike button is the most
-   likely.
-7. Before print: trademark check on the title, card art, a test print of the sheets, and a decision
+5. Close whichever gaps in section 8 the owner cares about. The strike button and the simultaneous
+   variant are the most likely.
+6. Before print: trademark check on the title, card art, a test print of the sheets, and a decision
    on a print service and its bleed requirements (the layout spec assumes 0.125 inch bleed).
 
 ## 10. Work log
@@ -371,9 +435,11 @@ files (the path a locked-down host would take).
 | `b2a6b4b` | Owner request: hearings dealt by tapping four deck piles that flip cards down into a scene row, with an animated deal, Plea Bargain redraws from the deck, and the smoke test updated to deal in random order. |
 | `bf41a52` | Handoff updated for tap-to-deal; work log added. |
 | `7e191ca` | Owner request: all card wording moved out of the page into `cards/crime.js`, `place.js`, `evidence.js`, `twist.js` and `special.js`. IDs optional for new cards, `#` to comment cards out, deck-file export in the Cards tab, live counts and over-20 warnings, load-error page, build script now checks the decks, smoke test covers the deck files, README rewritten for editing cards, `CLAUDE.md` added. |
+| `6900b76` | Handoff work-log table fixed. |
+| "Switch to three-case turns and a reveal-and-vote trial" | Owner request: new core rules. Each turn deals three cases privately; the player keeps one whole and may swap one card (pick of 3); then every case is revealed, read out and voted on with no defence. Plea timer, cross-examination and the six Plea Bargain cards removed (81 cards). New settings for cases per turn and swap mode. Winner is "convicted" and builds a rap sheet. Rulebook sections 1, 2, 4, 5, 6 and 8 rewritten. Card stats gain "kept". Smoke test rewritten for the new flow, with a card audit after every action; fixed a double discard before a showdown. |
 
-The hosted artifact was republished with the deck files after `7e191ca` (version 3), so it matches
-the repository.
+Rows without a hash are named by their commit subject; find them with `git log`. The hosted artifact
+was republished after the three-case change (version 4), so it matches the repository.
 
 ## 11. Repository state
 
