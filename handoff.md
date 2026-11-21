@@ -104,7 +104,7 @@ Everything is in one HTML page with three tabs.
 
 | Tab | What it does |
 | --- | --- |
-| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets, rounds, plea timer, first Judge, and toggles for cross-examination and Plea Bargains. Hearings with card flips, Plea Bargain swap, countdown timer, cross-examination prompt. Sequential ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average plea length, tied rounds, Plea Bargains used, per-round history. |
+| **Play** | Full game for 3 to 6 players on one screen. Setup screen with player names, length presets, rounds, plea timer, first Judge, and toggles for cross-examination and Plea Bargains. Hearings are dealt by hand: four deck piles sit above an empty four-slot "scene" row, and tapping a deck (in any order) flips its card down into its slot while the charge sentence fills in. Plea Bargain swap (the slot empties and the deck is tapped again for the replacement), countdown timer, cross-examination prompt. Sequential ballots, automatic tie handling, Gavel passing, Supreme Court showdown. End screen with playtest numbers: total time, average plea length, tied rounds, Plea Bargains used, per-round history. |
 | **Cards** | All 87 cards drawn in their print layout. Open a card to edit its name and text, set a status (Unreviewed, Approved, Needs work, Cut) and add a note. Cut cards are left out of play. Filters by deck and status, a table view with per-card stats (drawn, acquitted, swapped out), a combo tester that deals random charge sheets, JSON export and import, and 9-up print sheets with backs (standalone copy only). |
 | **Rulebook** | The eight deliverables. The card table in section 3 is generated from live card data, so it reflects edits. |
 
@@ -145,13 +145,14 @@ It is plain JavaScript with no libraries and no build step other than that wrapp
   `card(id)` merges base and overrides.
 - **Game state** is the single object `g`. Key fields: `names`, `n`, `rounds`, `plea`, `cross`,
   `round`, `judge`, `order`, `turn`, `sheets`, `votes`, `voters`, `scores`, `bargains`, `decks`,
-  `discards`, `history`, `pleaLog`, `phase` (`hearing`, `vote`, `tie`, `reveal`, `final`), `step`
+  `discards`, `history`, `pleaLog`,
+  `sheets[player] = { cards: [4 ids], up: [4 booleans, true once that card is dealt], swapped }`, `phase` (`hearing`, `vote`, `tie`, `reveal`, `final`), `step`
   within a hearing (`charges`, `ready`, `swap`, `plea`, `after`), `showdown`, `champion`.
 - **Game flow functions:** `startGame`, `startRound`, `startHearing`, `endPlea`, `nextHearing`,
   `castVote`, `tally`, `resolve`, `nextRound`, `startShowdown`. Tie logic is in `tally`.
 - **Rendering:** each view is a function returning an HTML string (`viewSetup`, `viewHearing`,
   `viewVote`, `viewTie`, `viewReveal`, `viewFinal`), set by `renderPlay`. Card faces and backs come
-  from `cardFace` and `cardBack`. Events use delegation on `data-action` attributes, handled in
+  from `cardFace` and `cardBack`. `animateDraw` moves a dealt card from its deck to its scene slot. Events use delegation on `data-action` attributes, handled in
   `act` (game) and `actCards` (Cards tab).
 - **Storage:** `localStorage` keys `ptf-review`, `ptf-setup` and `ptf-game` (a game in progress can
   be resumed). When the page runs as an artifact, review state is also written to the page database
@@ -203,6 +204,9 @@ for horizontal overflow at phone width, and reports any page errors.
 
 - The **strike rule** is in the rulebook but has no button in the app. A struck card currently has
   to be handled with a Plea Bargain or by ending the hearing.
+- The app lets the four decks be drawn in **any order**. The physical rule is Crime, Place, Evidence,
+  Twist. The owner asked for the tap-each-deck dealing; whether the rulebook should allow any order
+  is undecided.
 - The app uses **sequential ballots** with a pass-the-device step. The physical rule is simultaneous
   pointing. The outcomes are the same but the feel differs.
 - Several tuning options in the playtest plan are **not settings in the app**: two cross-examination

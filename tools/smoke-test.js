@@ -11,12 +11,25 @@ async function playGame(page, { players, preset, shots }) {
   await page.click('#preset-' + preset);
   if (shots) await page.screenshot({ path: out + '/setup.png', fullPage: true });
   await page.click('#btn-start');
+  if (shots) {
+    await page.screenshot({ path: out + '/deal-start.png', fullPage: true });
+    await page.click('#deck-evidence');
+    await page.waitForTimeout(260);
+    await page.screenshot({ path: out + '/deal-mid.png', fullPage: true });
+    await page.waitForTimeout(700);
+    await page.click('#deck-crime');
+    await page.waitForTimeout(800);
+    await page.screenshot({ path: out + '/deal-two.png', fullPage: true });
+  }
   let guard = 0, swapped = false, shotHearing = false, shotReveal = false;
   for (;;) {
     if (++guard > 3000) throw new Error('game did not finish');
     const has = (s) => page.locator(s).count();
     if (await has('#btn-rematch')) break;
-    if (await has('#btn-flip')) { await page.click('#btn-flip'); continue; }
+    if (await has('.deck.is-live')) { // draw in a random order
+      const live = page.locator('.deck.is-live');
+      await live.nth(Math.floor(Math.random() * (await live.count()))).click(); continue;
+    }
     if (await has('#btn-bargain') && !swapped) { swapped = true; await page.click('#btn-bargain'); await page.click('#btn-swap-evidence'); continue; }
     if (await has('#btn-plea')) {
       if (shots && !shotHearing) { shotHearing = true; await page.screenshot({ path: out + '/hearing.png', fullPage: true }); }
@@ -76,7 +89,11 @@ async function playGame(page, { players, preset, shots }) {
   }
   await phone.goto('file://' + file + '#play');
   await phone.click('#btn-start');
-  for (let i = 0; i < 4; i++) await phone.click('#btn-flip');
+  for (let i = 0; i < 2; i++) await phone.locator('.deck.is-live').first().click();
+  await phone.waitForTimeout(800);
+  await phone.screenshot({ path: out + '/phone-dealing.png', fullPage: true });
+  for (let i = 0; i < 2; i++) await phone.locator('.deck.is-live').first().click();
+  await phone.waitForTimeout(800);
   await phone.screenshot({ path: out + '/phone.png', fullPage: true });
   console.log('phone overflow hearing', await phone.evaluate(() => document.documentElement.scrollWidth - window.innerWidth));
 

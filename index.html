@@ -97,11 +97,25 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink)}
 .card--back .back__name{font-family:var(--font-display);font-weight:900;font-size:16cqw;text-transform:uppercase;letter-spacing:.04em;line-height:1}
 .card--back .back__order{font-family:var(--font-mono);font-size:4.5cqw;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
 .card--back .card__in::after{content:"";position:absolute;inset:4cqw;border:.7cqw solid currentColor;border-radius:2.5cqw;opacity:.5}
-.card.is-next{cursor:pointer}
-.card.is-next .card__in{box-shadow:0 0 0 4px var(--accent)}
-.card.is-new{animation:flip .35s ease-out}
-@keyframes flip{from{transform:rotateY(90deg)}to{transform:none}}
-@media (prefers-reduced-motion:reduce){.card.is-new{animation:none}}
+.decks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pile{display:grid;justify-items:center;align-content:start;gap:10px;min-width:0}
+.pile .card{width:min(100%,128px)}
+.pile .card__in{box-shadow:3px 3px 0 var(--card-paper),4px 4px 0 var(--card-edge),7px 7px 0 var(--card-paper),8px 8px 0 var(--card-edge)}
+.pile__n{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.deck.is-live{cursor:pointer;transition:transform .12s ease-out}
+.deck.is-live .card__in{outline:3px solid var(--accent);outline-offset:3px}
+.deck.is-live:hover,.deck.is-live:focus-visible{transform:translateY(-4px)}
+.deck.is-live+.pile__n{color:var(--accent);font-weight:600}
+.pile.is-spent .card{opacity:.4}
+.scene-label{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.scene-label::before,.scene-label::after{content:"";height:1px;background:var(--line);flex:1}
+.slot{perspective:1000px;align-content:start}
+.empty{width:100%;max-width:100%;align-self:start;aspect-ratio:2.5/3.5;border:2px dashed var(--line);border-radius:10px;display:grid;place-content:center;justify-items:center;gap:6px;color:var(--muted);font-family:var(--font-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase}
+.empty svg{width:32px;height:32px;opacity:.6}
+.flipper{position:relative;width:100%;transform-style:preserve-3d}
+.flipper>.card{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flipper__back{position:absolute;inset:0;transform:rotateY(180deg)}
+@media (prefers-reduced-motion:reduce){.deck.is-live{transition:none}}
 .slot{display:grid;gap:6px;min-width:0;justify-items:start}
 .flag{font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);background:none;color:var(--muted);padding:3px 10px;cursor:pointer;min-height:28px}
 .flag:hover{color:var(--ink);border-color:var(--ink)}
@@ -674,7 +688,8 @@ function cardBack(deck,o={}){
   return `<article class="card card--${deck} card--back ${o.cls||''}" ${o.attrs||''}><div class="card__in">${ICON[deck]}<span class="back__name">${esc(d.name)}</span><span class="back__order">${d.order?'Deck '+d.order+' of 4':'Plead the Filth'}</span></div></article>`;
 }
 function chargeHTML(cards,shown){
-  const b=(i,pre,post)=>i<shown?`${pre}<b>${esc(cards[i].text)}</b>${post}`:`${pre}<span class="blank">[${DECK[PLAY_DECKS[i]].name}]</span>${post}`;
+  const up=i=>Array.isArray(shown)?shown[i]:i<shown;
+  const b=(i,pre,post)=>up(i)?`${pre}<b>${esc(cards[i].text)}</b>${post}`:`${pre}<span class="blank">[${DECK[PLAY_DECKS[i]].name}]</span>${post}`;
   return b(0,'You were arrested for ','')+b(1,' ','.')+b(2,' You were found in possession of ','.')+b(3,' And to make matters worse: ','');
 }
 
@@ -753,7 +768,7 @@ function startRound(){
 }
 function startHearing(){
   const d=g.order[g.turn];
-  g.sheets[d]={cards:PLAY_DECKS.map(draw),flipped:0,swapped:null};
+  g.sheets[d]={cards:PLAY_DECKS.map(draw),up:[false,false,false,false],swapped:null};
   g.phase='hearing';g.step='charges';g.timer=null;g.fresh=-1;
 }
 function pleaSeconds(){return g.showdown?30:g.plea}
@@ -826,6 +841,22 @@ function renderPlay(){
   const root=$('#view-play');
   root.innerHTML=!g?viewSetup():g.phase==='hearing'?viewHearing():g.phase==='vote'?viewVote():g.phase==='tie'?viewTie():g.phase==='reveal'?viewReveal():viewFinal();
   if(g&&g.timer&&g.timer.running)startTick();
+  if(g&&g.phase==='hearing'&&g.fresh>=0){animateDraw(g.fresh);g.fresh=-1}
+}
+function animateDraw(i){
+  const slot=$('#slot-'+i),fl=slot&&slot.querySelector('.flipper'),dk=$('#deck-'+PLAY_DECKS[i]);
+  if(!fl)return;
+  const back=fl.querySelector('.flipper__back'),done=()=>{if(back)back.remove();fl.style.zIndex=''};
+  let still=false;try{still=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  if(!dk||!fl.animate||still){done();return}
+  const a=dk.getBoundingClientRect(),b=fl.getBoundingClientRect();
+  const dx=a.left+a.width/2-(b.left+b.width/2),dy=a.top+a.height/2-(b.top+b.height/2),sc=a.width/b.width;
+  fl.style.zIndex=5;
+  const an=fl.animate([
+    {transform:`translate(${dx}px,${dy}px) scale(${sc}) rotateY(180deg)`},
+    {transform:`translate(${dx*.4}px,${dy*.4}px) scale(${(sc+1)/2+.1}) rotateY(90deg)`,offset:.55},
+    {transform:'translate(0,0) scale(1) rotateY(0deg)'}],{duration:640,easing:'cubic-bezier(.3,.7,.2,1)'});
+  an.onfinish=done;an.oncancel=done;
 }
 function viewSetup(){
   if(!sample)dealSample();
@@ -860,7 +891,7 @@ function viewSetup(){
       <div class="row" style="justify-content:space-between"><p class="mono">Sample charge sheet</p><button class="btn btn--sm" data-action="deal-sample" id="btn-deal-sample">Deal another</button></div>
       <div class="sheet">${sc.map(c=>cardFace(c)).join('')}</div>
       <p class="charge">${chargeHTML(sc,4)}</p>
-      <p class="note">One screen is the table. The Prosecutor taps to turn the cards and reads them out, the Defendant pleads out loud, and each player taps their vote in turn. New here? Read the <a href="#rules" data-tab="rules" style="color:inherit">rulebook</a>.</p>
+      <p class="note">One screen is the table. Tap each deck to deal a card down into the scene while the Prosecutor reads it out, the Defendant pleads out loud, and each player taps their vote in turn. New here? Read the <a href="#rules" data-tab="rules" style="color:inherit">rulebook</a>.</p>
     </div>
   </div>`;
 }
@@ -876,13 +907,18 @@ function rail(){
 function docket(extra){return `<div class="docketline"><span>${g.showdown?'Supreme Court showdown':'Round '+g.round+' of '+g.rounds}</span>${extra||''}<span>Judge: ${esc(g.names[g.judge])}</span></div>`}
 function viewHearing(){
   const d=g.order[g.turn],sh=g.sheets[d],pros=prosecutor(d),cards=sh.cards.map(card),N=esc(g.names[d]),P=esc(g.names[pros]);
-  const allUp=sh.flipped===4;
-  const slots=cards.map((c,i)=>`<div class="slot">${i<sh.flipped
-    ?cardFace(c,{cls:i===g.fresh?'is-new':''})+`<button class="flag" data-action="flag" data-id="${c.id}" id="flag-${c.id}" aria-pressed="${c.status==='needs'}" title="Mark this card as needing a rewrite. It shows up in the Cards tab.">${c.status==='needs'?'Flagged for rewrite':'Flag for rewrite'}</button>`
-    :cardBack(c.deck,i===sh.flipped?{cls:'is-next',attrs:'data-action="flip" role="button" tabindex="0" aria-label="Turn over the '+DECK[c.deck].name+' card"'}:{})}</div>`).join('');
+  if(!sh.up)sh.up=[0,1,2,3].map(i=>i<(sh.flipped||0)); // games saved before decks could be drawn in any order
+  const dealing=g.step==='charges'||g.step==='ready'||g.step==='swap';
+  const decks=!dealing?'':`<div class="decks">${PLAY_DECKS.map((k,i)=>{
+      const live=g.step==='charges'&&!sh.up[i],left=g.decks[k].length+(sh.up[i]?0:1);
+      return `<div class="pile ${live?'':'is-spent'}">${cardBack(k,{cls:'deck'+(live?' is-live':''),attrs:`id="deck-${k}" `+(live?`data-action="flip" data-i="${i}" role="button" tabindex="0" aria-label="Draw from the ${DECK[k].name} deck"`:'aria-hidden="true"')})}<span class="pile__n">${live?'Tap to draw':left+' left'}</span></div>`}).join('')}</div>
+    <p class="scene-label">The scene</p>`;
+  const slots=cards.map((c,i)=>`<div class="slot" id="slot-${i}">${sh.up[i]
+    ?`<div class="flipper">${cardFace(c)}${i===g.fresh?cardBack(c.deck,{cls:'flipper__back'}):''}</div><button class="flag" data-action="flag" data-id="${c.id}" id="flag-${c.id}" aria-pressed="${c.status==='needs'}" title="Mark this card as needing a rewrite. It shows up in the Cards tab.">${c.status==='needs'?'Flagged for rewrite':'Flag for rewrite'}</button>`
+    :`<div class="empty">${ICON[c.deck]}<span>${i+1}. ${DECK[c.deck].name}</span></div>`}</div>`).join('');
   let act='';
   if(g.step==='charges'){
-    act=`<div class="actions"><button class="btn btn--primary" data-action="flip" id="btn-flip">Turn over the ${DECK[PLAY_DECKS[sh.flipped]].name} card</button><span class="note">${P} reads each card out loud as it turns.</span></div>`;
+    act=`<p class="note" id="deal-hint">${sh.swapped?'Tap the '+DECK[sh.swapped].name+' deck to draw the replacement. '+N+' must keep it.':'Tap each deck to deal the charges, in any order. '+P+' reads each card out loud as it lands.'}</p>`;
   }else if(g.step==='ready'){
     const canB=!g.showdown&&g.bargains[d];
     act=`<div class="actions"><button class="btn btn--primary" data-action="start-plea" id="btn-plea">Start the ${pleaSeconds()}-second plea</button>${canB?`<button class="btn" data-action="bargain" id="btn-bargain">Use Plea Bargain</button>`:''}</div>
@@ -902,8 +938,9 @@ function viewHearing(){
   return `<div class="table"><div class="stage">
       <div>${docket(`<span>Hearing ${g.turn+1} of ${g.order.length}</span><span>Prosecutor: ${P}</span>`)}
         <h1 class="case">The People <em>v.</em> ${N}</h1></div>
+      ${decks}
       <div class="sheet">${slots}</div>
-      <p class="charge">${chargeHTML(cards,sh.flipped)}</p>
+      <p class="charge">${chargeHTML(cards,sh.up)}</p>
       ${act}
     </div>${rail()}</div>`;
 }
@@ -1037,10 +1074,10 @@ function act(a,el){
     case 'start':startGame();break;
     case 'resume-game':g=ls.get('ptf-game');if(g&&g.timer&&g.timer.running&&g.timer.endsAt<Date.now())endPlea(true);break;
     case 'discard-game':ls.del('ptf-game');break;
-    case 'flip':if(sh&&sh.flipped<4){g.fresh=sh.flipped;sh.flipped++;if(sh.flipped===4)g.step='ready'}break;
+    case 'flip':{const i=+el.dataset.i;if(sh&&g.step==='charges'&&sh.up[i]===false){sh.up[i]=true;g.fresh=i;if(sh.up.every(Boolean))g.step='ready'}break}
     case 'bargain':g.step='swap';g.fresh=-1;break;
     case 'cancel-swap':g.step='ready';break;
-    case 'swap':{const i=+el.dataset.i,k=PLAY_DECKS[i],old=sh.cards[i];bump(old,'swapped');g.discards[k].push(old);sh.cards[i]=draw(k);sh.swapped=k;g.bargains[d]=false;g.fresh=i;g.step='ready';persistReview();break}
+    case 'swap':{const i=+el.dataset.i,k=PLAY_DECKS[i],old=sh.cards[i];bump(old,'swapped');g.discards[k].push(old);sh.cards[i]=draw(k);sh.up[i]=false;sh.swapped=k;g.bargains[d]=false;g.fresh=-1;g.step='charges';persistReview();break}
     case 'start-plea':g.step='plea';g.fresh=-1;g.timer={total:pleaSeconds(),remaining:pleaSeconds(),running:true,endsAt:Date.now()+pleaSeconds()*1000};break;
     case 'pause':g.timer.remaining=Math.max(0,(g.timer.endsAt-Date.now())/1000);g.timer.running=false;stopTick();break;
     case 'resume':g.timer.running=true;g.timer.endsAt=Date.now()+g.timer.remaining*1000;break;
