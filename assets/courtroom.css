@@ -33,7 +33,7 @@ body {
   inset: 52% auto auto 56%;
   z-index: 0;
   transform: translate(-50%, -50%) rotate(-13deg);
-  font: 900 clamp(2.15rem, 7vw, 6rem)/1 var(--poster-type);
+  font: italic 700 clamp(2.15rem, 7vw, 6rem)/1 Georgia, 'Times New Roman', serif;
   white-space: nowrap;
   color: var(--night);
   opacity: .14;

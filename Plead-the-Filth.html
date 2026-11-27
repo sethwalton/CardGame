@@ -334,7 +334,7 @@ body {
   inset: 52% auto auto 56%;
   z-index: 0;
   transform: translate(-50%, -50%) rotate(-13deg);
-  font: 900 clamp(2.15rem, 7vw, 6rem)/1 var(--poster-type);
+  font: italic 700 clamp(2.15rem, 7vw, 6rem)/1 Georgia, 'Times New Roman', serif;
   white-space: nowrap;
   color: var(--night);
   opacity: .14;
@@ -1067,7 +1067,7 @@ function viewSetup(){
   const sc=sample.map(card),need=n+setup.cases+setup.swap+1;
   const short=PLAY_DECKS.filter(k=>playable(k).length<need);
   return `<div class="hero">
-    <span class="court-watermark" aria-hidden="true">Exhibit WTF</span>
+    <span class="court-watermark" aria-hidden="true">Sorry Jesus</span>
     <div class="hero-copy"><p class="hero-kicker"><span aria-hidden="true">★</span> A courtroom party game</p>
     <h1>Plead the <strong>Filth<span aria-hidden="true">!</span></strong></h1>
     <p class="hero-pitch">Build a ridiculous case. Read it to the jury.<br>
