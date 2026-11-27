@@ -137,6 +137,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--ink)}
 .players{display:grid;gap:8px;margin-bottom:8px}
 .players .row{flex-wrap:nowrap}
 .players .seat{font-family:var(--font-mono);font-size:.75rem;color:var(--muted);width:3.2ch;flex:none}
+.players input:focus::placeholder{color:transparent}
 .presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .preset{border:2px solid var(--line);background:var(--raised);padding:10px;cursor:pointer;text-align:left;min-width:0}
 .preset b{display:block;font-family:var(--font-display);font-size:1.2rem;text-transform:uppercase;letter-spacing:.02em}
@@ -902,7 +903,11 @@ function showTab(t){
    revealed and read out, everyone votes for the most ridiculous, and all top-voted players earn a conviction. */
 const STD_ROUNDS={3:6,4:5,5:4,6:3},LONG_ROUNDS={3:8,4:7,5:5,6:4};
 const SWAP_LABEL={3:'Look at 3, keep 1',2:'Look at 2, keep 1',1:'Blind: draw 1',0:'No swap'};
-let setup=Object.assign({names:['Player 1','Player 2','Player 3'],preset:'standard',rounds:6,cases:3,swap:3},ls.get('ptf-setup')||{});
+const savedSetup=ls.get('ptf-setup');
+let setup=Object.assign({names:['','',''],namesVersion:1,preset:'standard',rounds:6,cases:3,swap:3},savedSetup||{});
+if(!Array.isArray(setup.names)||setup.names.length<3)setup.names=['','',''];
+// Older setups stored the generated seat labels in the name fields.
+if(savedSetup&&!savedSetup.namesVersion)setup.names=setup.names.map((name,i)=>name===`Player ${i+1}`?'':name);
 let g=null,sample=null,confirmQuit=false;
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
@@ -1074,7 +1079,7 @@ function viewSetup(){
       <h2 class="section-title" style="margin:0"><span class="section-icon" aria-hidden="true">${ICON.gavel}</span> Booking desk</h2>
       ${canResume(saved)?`<div class="callout"><p><strong>A game is in progress.</strong> Round ${saved.round} of ${saved.rounds}, ${saved.names.map(esc).join(', ')}.</p><div class="row" style="margin-top:8px"><button class="btn btn--sm" data-action="resume-game" id="btn-resume">Resume it</button><button class="btn btn--sm btn--ghost" data-action="discard-game" id="btn-discard">Throw it out</button></div></div>`:saved?'<p class="note">Start a new game to use the current voting rules and decks.</p>':''}
       <div><p class="mono" style="margin-bottom:6px">Players, in seating order (clockwise)</p>
-        <div class="players">${setup.names.map((nm,i)=>`<div class="row"><span class="seat">${i+1}</span><input type="text" id="name-${i}" data-name="${i}" value="${esc(nm)}" maxlength="18" aria-label="Player ${i+1} name">${n>3?`<button class="btn btn--sm btn--ghost" data-action="remove-player" data-i="${i}" id="rm-${i}" aria-label="Remove player ${i+1}">Remove</button>`:''}</div>`).join('')}</div>
+        <div class="players">${setup.names.map((nm,i)=>`<div class="row"><span class="seat">${i+1}</span><input type="text" id="name-${i}" data-name="${i}" value="${esc(nm)}" placeholder="Player ${i+1}" maxlength="18" aria-label="Player ${i+1} name">${n>3?`<button class="btn btn--sm btn--ghost" data-action="remove-player" data-i="${i}" id="rm-${i}" aria-label="Remove player ${i+1}">Remove</button>`:''}</div>`).join('')}</div>
         ${n<6?`<button class="btn btn--sm" data-action="add-player" id="btn-add">Add a player</button>`:''}</div>
       <div><p class="mono" style="margin-bottom:6px">Game length</p>
         <div class="presets">
@@ -1364,7 +1369,7 @@ function downloadPrint(){
 /* ---------- events ---------- */
 function act(a,el){
   switch(a){
-    case 'add-player':setup.names.push('Player '+(setup.names.length+1));applyPreset();break;
+    case 'add-player':setup.names.push('');applyPreset();break;
     case 'remove-player':setup.names.splice(+el.dataset.i,1);applyPreset();break;
     case 'preset':setup.preset=el.dataset.p;applyPreset();break;
     case 'deal-sample':dealSample();break;
@@ -1473,7 +1478,6 @@ async function start(data){
   const st=await loadDecks();
   if(!st.ready){showLoadError();return}
   if(canResume(data?.g))g=data.g;
-  if(!setup.names||setup.names.length<3)setup.names=['Player 1','Player 2','Player 3'];
   $('#anatomy-card').innerHTML=cardFace(card((BASE_BY_ID.C08?'C08':playable('crime')[0])),{extra:
     '<span class="pin" style="left:-4cqw;top:3cqw">1</span><span class="pin" style="left:50cqw;top:3cqw">2</span><span class="pin" style="right:-4cqw;top:3cqw">3</span>'+
     '<span class="pin" style="right:-4cqw;top:16cqw">4</span><span class="pin" style="right:-4cqw;top:36cqw">5</span><span class="pin" style="right:-4cqw;top:107cqw">6</span><span class="pin" style="right:-4cqw;bottom:2cqw">7</span>'});
