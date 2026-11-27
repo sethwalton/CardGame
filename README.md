@@ -15,7 +15,7 @@ cards/twist.js      Twist deck
 assets/             screen styles and the illustrated gavel
 ```
 
-Keep `cards/` and `assets/` next to `index.html`. Each scenario deck contains 30 cards. Every player casts one vote for another player's case. Each case tied for the most votes earns one conviction for its owner.
+Keep `cards/` and `assets/` next to `index.html`. Each scenario deck contains 30 cards. Every player casts one vote for another player's case. Each card has a Years value. At the verdict, every case tied for the most votes earns the sum of its four cards' years and one conviction for its owner's rap sheet. The most years after the last round wins.
 
 ## Deploying
 
@@ -31,5 +31,5 @@ Double-click `Plead-the-Filth.html` to play offline. You can copy that one file 
 
 ## Editing cards
 
-Each file in `cards/` has instructions at the top. One card per line; save and reload the page.
+Each file in `cards/` has instructions at the top. Put one card per line and add `| y3` after its text for a three-year card. Use `y1` through `y5` and put any `| x2` copy count last. Save and reload the page to play with the updated deck.
 Open `index.html` alongside the folders to see your edits. After editing, run `node build-offline.mjs` to refresh its embedded backup and regenerate the standalone game.

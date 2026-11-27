@@ -4,11 +4,11 @@
 
 Plead the Filth is an adult courtroom party card game for **3–6 players ages 18 and older**. Players assemble absurd arrest reports from four decks, hear the cases read aloud, and vote on which one is funniest. The humor comes from the combination of cards and the deadpan reading. The owner does not give a defense speech.
 
-A **case** is an ordered set of four cards. A **conviction** is one point awarded to the owner of a case that receives the most votes in a round. A **rap sheet** is a record of a player's convictions and the Crime card associated with each one. The player with the most convictions at the end wins. Players tied for first share the win.
+A **case** is an ordered set of four cards. Each card has a **Years** value. A case's **sentence** is the sum of its four values. Only cases tied for the most votes earn their sentence, which the owner adds to their running score. A **conviction** marks a case that receives the most votes in a round. A **rap sheet** records a player's convictions and the Crime card associated with each one. The player with the most years at the end wins. Players tied for first share the win.
 
 ## Cards and reading order
 
-The current game ships with 120 cards, 30 in each of four independently shuffled decks. In the digital game, cards are prompts. Drawing, keeping, or swapping a card does not award points.
+The current game ships with 120 cards, 30 in each of four independently shuffled decks. Cards show their Years values during play and on printed card fronts. Drawing, keeping, or swapping a card does not award points.
 
 | Order | Deck | What it contributes | How to write new entries |
 | --- | --- | --- | --- |
@@ -27,7 +27,7 @@ Crime, Place, and Evidence entries should omit a final period where the game sup
 
 **Browser.** Open `Plead-the-Filth.html` directly for offline play. The group shares one screen or passes one device. In **Play**, enter player names in clockwise seating order, choose a game length, and click **Call the court to order**. The first listed player starts the first round. The starting seat moves one place clockwise each new round.
 
-**Printed cards.** Separate the four decks, shuffle each one, and put them face down in reading order with room for separate discard piles. Pick a starting player. Agree on the number of rounds and keep a written rap sheet for each player. Rotate the starting seat clockwise after each round.
+**Printed cards.** Separate the four decks, shuffle each one, and put them face down in reading order with room for separate discard piles. Pick a starting player. Agree on the number of rounds and keep a running years total and a written rap sheet for each player. Rotate the starting seat clockwise after each round.
 
 | Players | Standard rounds | Long rounds |
 | --- | ---: | ---: |
@@ -48,9 +48,9 @@ Crime, Place, and Evidence entries should omit a final period where the game sup
 4. **Lock the case and hand off.** Keep the chosen row private. Repeat until every player has one case.
 5. **Read the charges.** Reveal cases in the same order as the building turns. The person to the case owner’s left reads it aloud. Hear every case before voting.
 6. **Vote.** Everyone casts one vote for the funniest case. A player cannot vote for their own case. The browser passes a private ballot to each player in turn and reveals the total after the last vote. With printed cards, have everyone point at the same time on a count of three and repeat any missing or self-directed vote.
-7. **Record convictions.** Each case tied for the most votes earns exactly one conviction for its owner. Record the winning Crime card name for each conviction. Discard every card in every submitted case, including the winning Crime cards. Move the starting seat clockwise unless the game is over.
+7. **Record years and convictions.** Find the cases tied for the most votes. For each of those cases, add the final four cards' Years values to the owner's running score and record one conviction. Other cases earn zero years. Record the winning Crime card name for each conviction. Discard every card in every submitted case, including the winning Crime cards. Move the starting seat clockwise unless the game is over.
 
-**Example verdict.** Ada votes for Ben. Ben and Cam vote for Ada. Ada earns one conviction with two votes. If Ada votes for Ben, Ben votes for Cam, and Cam votes for Ada, each player earns one conviction. There is no Judge role or separate tie-break ballot.
+**Example verdict.** Ada votes for Ben. Ben and Cam vote for Ada. If Ada's four cards show 4, 2, 1, and 3 years, Ada earns ten years and one conviction. Ben and Cam earn zero years. If Ada votes for Ben, Ben votes for Cam, and Cam votes for Ada, each player earns their own case's sentence and one conviction. There is no Judge role or separate tie-break ballot.
 
 **Decks and boundaries.** When a printed deck runs out, shuffle its discard pile into a new draw pile. The tabletop rulebook also lets anyone strike a card and replace it from the same deck without spending the optional swap. The browser’s **Flag for rewrite** action marks a card for editorial review. Use **Cut** in the Cards tab to exclude it from future games and print exports.
 
@@ -69,11 +69,11 @@ Use a static host with `index.html`, `cards/`, and `assets/` in the same relativ
 
 ### Deck data and saved state
 
-- Each deck script registers a block with `PleadTheFilth.deck(deckKey, text)`. A card line is `ID | Name | Text`, with an optional trailing `| x2` or other copy count. Browser play draws by card ID. Copy counts are expanded by the print exporter.
+- Each deck script registers a block with `PleadTheFilth.deck(deckKey, text)`. A card line is `ID | Name | Text | y3`, with a Years value from `y1` through `y5` and an optional trailing `| x2` or other copy count. Older lines without a value use default years by deck (Crime 3, Place 1, Evidence 2, Twist 2). Browser play draws by card ID. Copy counts are expanded by the print exporter.
 - Preserve unique IDs across edits. Existing IDs use `C`, `P`, `E`, and `T` prefixes. A leading `#` or `//` comments out a line. Keep pipes and backticks out of card text. Escape literal backslashes and avoid template interpolation sequences in the JavaScript deck blocks.
 - Editable deck files take precedence over the bundled data. The **Cards** tab can review, edit, approve, flag, or cut cards and import/export review data. Its browser-local overrides are stored by card ID under `ptf-review`. Export permanent deck changes via **Export / import** and update the deck files before rebuilding.
-- Setup preferences use `ptf-setup`. The active game is saved under `ptf-game2` with schema version `3`. These values are local to the browser context. Keep stable IDs and account for older saves if changing the state shape.
-- In `index.html`, `chargeHTML` assembles the case, `beginTurn` and `keepCase` handle the deal and selection, `castVote` and `tally` enforce ballot rules and award convictions, and `buildPrint` creates the printable fronts and backs.
+- Setup preferences use `ptf-setup`. The experimental active game uses `ptf-years-game` with schema version `4`. Prior builds keep their games under `ptf-game2`. The saved state is local to the browser. Keep stable IDs and account for older saves if changing the state shape.
+- In `index.html`, `chargeHTML` assembles the case, `beginTurn` and `keepCase` handle the deal and selection, `castVote` and `tally` enforce ballot rules and record years and convictions, and `buildPrint` creates the printable fronts and backs.
 
 ### Print export
 
@@ -83,5 +83,5 @@ Under **Cards → Print sheets**, choose **Desktop Supplies 55521** for six card
 
 - Open both `index.html` and the regenerated standalone file. Confirm that all four decks appear and that the console reports no parse errors.
 - Play a three-player Speed Trial from setup through verdict. Confirm that private cases stay hidden until the trial and that self-votes cannot be submitted.
-- Test a standard swap, a tied round, a shared game win, and rotation of the starting seat in a second round. Check that the winning Crime cards are recorded on the rap sheets and returned to their discard pile.
+- Test a standard swap, a tied round, a shared game win, and rotation of the starting seat in a second round. Check that only top-voted cases earn years, that swaps affect the sentence, and that scores accumulate exactly once across rounds and after resuming a saved game. Check that the winning Crime cards are recorded on the rap sheets and returned to their discard pile.
 - For print changes, verify that fronts and backs match across rows and that the 55521 layout exports 40 US Letter pages when all 120 cards are approved. Inspect a rendered first and last card row and confirm that no card is clipped.
