@@ -26,7 +26,20 @@
 .hand-select:focus-visible::after {outline: 3px solid #fff}
 .hand-select span {font-size: .84rem; color: #f4d5de}
 .hand-select:disabled {cursor: default}
-.hand-reading {display: grid; gap: 8px; justify-items: start}
+.hand-reading {display: grid; gap: 14px; justify-items: start; container-type: inline-size}
+.hand-reading h3 {scroll-margin-top: 5rem}
+.review-spread {display: grid; width: 100%; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px}
+.review-spread .card {display: flex; min-width: 0}
+.review-spread .card__in {width: 100%; height: auto; box-shadow: 1px 3px 0 var(--line)}
+.review-spread .card__text {font-size: max(1rem, 7.7cqw)}
+.review-spread .card__foot {font-size: max(.66rem, 3.7cqw)}
+.review-spread .card__art {height: auto; min-height: 14cqw}
+@container (min-width: 44rem) {
+  .review-spread {grid-template-columns: repeat(4,minmax(0,1fr))}
+}
+@container (max-width: 17rem) {
+  .review-spread {grid-template-columns: minmax(0,1fr)}
+}
 .hand-reading .charge {margin: 0}
 @media (max-width: 540px) {
   .hand-rack {grid-template-columns: repeat(2,minmax(0,1fr))}

@@ -327,7 +327,20 @@ textarea{min-height:92px;resize:vertical}
 .hand-select:focus-visible::after {outline: 3px solid #fff}
 .hand-select span {font-size: .84rem; color: #f4d5de}
 .hand-select:disabled {cursor: default}
-.hand-reading {display: grid; gap: 8px; justify-items: start}
+.hand-reading {display: grid; gap: 14px; justify-items: start; container-type: inline-size}
+.hand-reading h3 {scroll-margin-top: 5rem}
+.review-spread {display: grid; width: 100%; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px}
+.review-spread .card {display: flex; min-width: 0}
+.review-spread .card__in {width: 100%; height: auto; box-shadow: 1px 3px 0 var(--line)}
+.review-spread .card__text {font-size: max(1rem, 7.7cqw)}
+.review-spread .card__foot {font-size: max(.66rem, 3.7cqw)}
+.review-spread .card__art {height: auto; min-height: 14cqw}
+@container (min-width: 44rem) {
+  .review-spread {grid-template-columns: repeat(4,minmax(0,1fr))}
+}
+@container (max-width: 17rem) {
+  .review-spread {grid-template-columns: minmax(0,1fr)}
+}
 .hand-reading .charge {margin: 0}
 @media (max-width: 540px) {
   .hand-rack {grid-template-columns: repeat(2,minmax(0,1fr))}
@@ -1224,11 +1237,13 @@ function viewTurn(){
         return `<div class="pile ${live?'':'is-spent'}">${cardBack(k,{cls:'deck'+(live?' is-live':''),attrs:`id="deck-${k}" `+(live?`data-action="deal" data-i="${i}" role="button" tabindex="0" aria-label="Deal from the ${DECK[k].name} deck"`:'aria-hidden="true"')})}<span class="pile__n">${live?'Tap to deal · '+left+' to go':'Dealt'}</span></div>`}).join('')}</div>
       ${g.step==='deal'?'<div class="actions"><button class="btn btn--sm" data-action="deal-rest" id="btn-deal-rest">Deal the rest</button><span class="note">Tap a deck to draw into the next hand.</span></div>':''}`;
     const inspected=cur.inspected,ids=cur.cases[inspected];
-    const reading=ids?`<section class="hand-reading" tabindex="-1" aria-label="Case ${inspected+1}"><h3>Case ${inspected+1} · ${yearsLabel(caseYears(ids))}</h3>
-      <p class="charge">${chargeHTML(ids.map(card),4)}</p>${g.step==='choose'?`<button class="btn btn--primary" data-action="keep" data-c="${inspected}" id="btn-keep-${inspected}">Keep case ${inspected+1}</button>`:''}</section>`:'';
-    body=`<div class="deal-table">${decks}${reading}<section class="hand-tray"><h3>Your hands</h3>
+    const cards=ids?.map(card);
+    const reading=cards?`<section class="hand-reading" tabindex="-1" aria-labelledby="reviewed-hand"><h3 id="reviewed-hand">Case ${inspected+1} · ${yearsLabel(caseYears(ids))}</h3>
+      <div class="review-spread">${cards.map(c=>cardFace(c)).join('')}</div>
+      <p class="charge">${chargeHTML(cards,4)}</p>${g.step==='choose'?`<button class="btn btn--primary" data-action="keep" data-c="${inspected}" id="btn-keep-${inspected}">Keep case ${inspected+1}</button>`:''}</section>`:'';
+    body=`<div class="deal-table">${decks}<section class="hand-tray"><h3>Your hands</h3>
       <p>Tap any complete hand to turn it over.${g.step==='choose'?' Keep your favorite case.':''}</p>
-      <div class="hand-rack" style="--hands:${cur.cases.length}">${cur.cases.map((_,c)=>caseHand(c)).join('')}</div></section></div>`;
+      <div class="hand-rack" style="--hands:${cur.cases.length}">${cur.cases.map((_,c)=>caseHand(c)).join('')}</div></section>${reading}</div>`;
   }else if(g.step==='swap'){
     const how=g.swapPick===1?'Discard it and draw the top card of that deck. You must keep the new card.':`Discard it, look at the top ${g.swapPick} cards of that deck, and keep the one you like best. You can't get the discarded card back.`;
     body=caseFile(0,{title:'Your case',cls:'is-kept'})+`<div class="callout"><h3>Swap one card?</h3><p>${how}</p>
@@ -1500,7 +1515,7 @@ function act(a,el){
   if(a==='inspect-hand'){
     const reading=$('.hand-reading');
     reading?.focus({preventScroll:true});
-    reading?.scrollIntoView({block:'nearest'});
+    reading?.querySelector('h3')?.scrollIntoView({block:'start'});
   }
   return true;
 }
