@@ -300,6 +300,40 @@ textarea{min-height:92px;resize:vertical}
 
 <style id="offline-theme" media="screen">
 /* Screen furniture for the court. Printed sheets and card artwork use the original styles. */
+.deal-table {
+  display: flex; flex-direction: column; gap: 16px; min-height: min(64svh, 590px);
+  padding: clamp(12px, 2vw, 24px); border: 2px solid var(--ink); border-radius: 16px;
+  background: var(--surface);
+}
+.deal-table .pile .card {width: min(82%, 94px)}
+.hand-tray {
+  margin-top: auto; padding: 16px clamp(8px, 2vw, 24px) 12px; border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 110%, #633043, #311e2c 80%); color: #fff7df;
+  box-shadow: inset 0 0 0 1px #fff3;
+}
+.hand-tray h3 {font: italic bold 1.45rem Georgia, serif; color: inherit}
+.hand-tray > p {font-size: .94rem; margin: 3px 0 12px}
+.hand-rack {display: grid; grid-template-columns: repeat(var(--hands), minmax(0,1fr)); gap: 8px}
+.case-hand {position: relative; min-width: 0; border: 1px dashed #c6a9ac80; border-radius: 10px; padding: 8px 3px}
+.case-hand:has(button[aria-pressed="true"]) {border: 1px solid #ff99b5; background: #ffffff0d}
+.fan {position: relative; width: min(100%, 216px); margin: auto; aspect-ratio: 1.72}
+.hand-slot {position: absolute; width: 38%; left: calc(10% + var(--slot)*14%); top: 3%; pointer-events: none}
+.hand-angle {transform: rotate(calc((var(--slot) - 1.5)*10deg)); transform-origin: 50% 95%}
+.hand-face {position: relative; transform-style: preserve-3d}
+.hand-face > .card {backface-visibility: hidden}
+.hand-face .card__in {box-shadow: 0 1px 4px #16091288}
+.hand-select {display: grid; justify-items: center; width: 100%; border: none; background: none; color: inherit; cursor: pointer; font: inherit}
+.hand-select::after {content: ''; position: absolute; inset: 0; border-radius: 10px}
+.hand-select:focus-visible::after {outline: 3px solid #fff}
+.hand-select span {font-size: .84rem; color: #f4d5de}
+.hand-select:disabled {cursor: default}
+.hand-reading {display: grid; gap: 8px; justify-items: start}
+.hand-reading .charge {margin: 0}
+@media (max-width: 540px) {
+  .hand-rack {grid-template-columns: repeat(2,minmax(0,1fr))}
+  .fan {max-width: 145px}
+  .deal-table .decks {gap: 6px}
+}
 :root {
   --bg: #f6f1e5;
   --surface: #fffaf0;
@@ -558,8 +592,8 @@ dialog::backdrop {background: rgb(26 12 25 / .78)}
           <h3>Phase one: building cases</h3>
           <p>Start with the first player for this round, then go clockwise. Keep your cards hidden from the other players the whole time.</p>
           <ol>
-            <li><strong>Deal three cases.</strong> Deal yourself three rows of four cards face down in front of you, one card from each deck per row. Each row is a case. Look at your rows without showing anyone.</li>
-            <li><strong>Keep one case.</strong> Pick up the row you think is the most ridiculous. You must keep it exactly as dealt: you cannot move cards between rows. The other two rows go face down onto their discard piles.</li>
+            <li><strong>Deal three cases.</strong> Deal three separate hands face down, with one card from each deck in every hand. Pick up each hand in turn and fan it toward yourself to read the case.</li>
+            <li><strong>Keep one case.</strong> Choose the hand that makes the most ridiculous case. Keep its four cards together. Discard each card from the other hands onto its matching discard pile.</li>
             <li><strong>Swap one card (optional).</strong> You may discard one card from your case, look at the top three cards of the same deck, and keep the one you like best. The other two go onto the discard pile. You cannot get the discarded card back.</li>
             <li><strong>Lock it in.</strong> Hold your case face down. Your turn is over. Do not show it to anyone until the trial.</li>
           </ol>
@@ -622,7 +656,7 @@ dialog::backdrop {background: rgb(26 12 25 / .78)}
           <h2>5. Example round</h2>
           <p>Three players sit clockwise: Maya, Dev, Rosa. Dev is the starting player for this round.</p>
           <ol>
-            <li><strong>Dev's turn.</strong> Dev deals himself three rows of four cards and looks at them. Case 2 is the strongest: offering handjobs in exchange for chicken nuggets, at a nursing home bingo night, a cooler labeled "NOT ORGANS", and he was stone-cold sober. He keeps it and discards the other two rows. The Twist feels flat, so he swaps it: he discards it, looks at the top three Twist cards, keeps "Your mom was there the whole time, cheering you on," and discards the other two. He hides his case.</li>
+            <li><strong>Dev's turn.</strong> Dev deals three hands of four cards and looks at each in turn. Case 2 is the strongest: offering handjobs in exchange for chicken nuggets, at a nursing home bingo night, a cooler labeled "NOT ORGANS", and he was stone-cold sober. He keeps it and discards the other two hands. The Twist feels flat, so he swaps it: he discards it, looks at the top three Twist cards, keeps "Your mom was there the whole time, cheering you on," and discards the other two. He hides his case.</li>
             <li><strong>Rosa's turn.</strong> Rosa deals her three cases. Case 1 is joyriding a stolen hearse with the casket still in the back, at the altar midway through her own wedding vows, holding somebody else's prosthetic leg, and she live-streamed it to 40,000 viewers. She likes it as it is, keeps it, and does not swap.</li>
             <li><strong>Maya's turn.</strong> She keeps a case with a meth lab in a bouncy castle, live on the local morning news, and a heavily sedated swan. She swaps the Twist for a sexy Abraham Lincoln costume.</li>
             <li><strong>The trial.</strong> Dev lays his case down first and Rosa, on his left, reads it out. Then Rosa's case, read by Maya. Then Maya's, read by Dev. Nobody explains anything.</li>
@@ -963,7 +997,7 @@ function beginTurn(){
 }
 function dealOne(i){ // a tap on deck i deals into the first case still missing that deck's card
   const c=g.cur.up.findIndex(u=>!u[i]);if(c<0)return;
-  g.cur.up[c][i]=true;g.fresh={c,i};
+  g.cur.up[c][i]=true;g.fresh={dealt:[[c,i]]};
   if(g.cur.up.every(u=>u.every(Boolean)))g.step='choose';
 }
 function keepCase(c){
@@ -1052,10 +1086,28 @@ function renderPlay(){
   root.innerHTML=!g?viewSetup():g.phase==='turn'?viewTurn():g.phase==='trial'?viewTrial():g.phase==='vote'?viewVote():g.phase==='reveal'?viewReveal():viewFinal();
   if(g&&g.phase==='turn'&&g.fresh){
     const {c,i,options}=g.fresh;
-    if(options)root.querySelectorAll('.options .flipper').forEach(fl=>animateDraw(fl));
+    if(g.fresh.dealt)animateDeal(g.fresh.dealt);
+    else if(g.fresh.inspect!=null){
+      if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+        root.querySelectorAll('#hand-case-'+g.fresh.inspect+' .hand-face').forEach(face=>
+          face.animate?.([{transform:'rotateY(180deg)'},{transform:'rotateY(0deg)'}],{duration:400}));
+      }
+    }
+    else if(options)root.querySelectorAll('.options .flipper').forEach(fl=>animateDraw(fl));
     else animateDraw($(`#slot-${c}-${i} .flipper`),$('#deck-'+PLAY_DECKS[i]));
     g.fresh=null;
   }
+}
+function animateDeal(dealt){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  dealt.forEach(([c,i],order)=>{
+    const slot=$('#hand-'+c+'-'+i),deck=$('#deck-'+PLAY_DECKS[i]);
+    if(!slot?.animate||!deck)return;
+    const from=deck.getBoundingClientRect(),to=slot.getBoundingClientRect();
+    const dx=from.left+from.width/2-to.left-to.width/2,dy=from.top+from.height/2-to.top-to.height/2;
+    slot.animate([{transform:`translate(${dx}px,${dy}px) scale(${from.width/to.width})`},{transform:'none'}],
+      {duration:360,delay:order*48,easing:'cubic-bezier(.22,.72,.25,1)',fill:'backwards'});
+  });
 }
 function animateDraw(fl,deck){
   if(!fl)return;
@@ -1138,6 +1190,18 @@ function caseFile(c,o){ // one case: four slots, its sentence, and an optional a
   return `<section class="casefile ${o.cls||''}" id="case-${c}"><div class="row" style="justify-content:space-between"><h3>${esc(o.title)}</h3>${o.action||''}</div>
     <div class="sheet">${slots}</div><p class="charge">${chargeHTML(sentenceCards,shown)}</p>${shown.every(Boolean)?`<p class="note">Potential sentence: ${yearsLabel(caseYears(ids))}.</p>`:''}</section>`;
 }
+function caseHand(c){
+  const up=g.cur.up[c],count=up.filter(Boolean).length,open=g.cur.inspected===c;
+  const caption=count<4?`${count} of 4 dealt`:open?'Face up':'Turn over';
+  const cards=PLAY_DECKS.map((k,i)=>{
+    if(!up[i])return '';
+    const face=open?cardFace(card(g.cur.cases[c][i])):cardBack(k);
+    return `<div class="hand-slot" id="hand-${c}-${i}" style="--slot:${i}"><div class="hand-angle"><div class="hand-face">${face}${open?cardBack(k,{cls:'flipper__back'}):''}</div></div></div>`;
+  }).join('');
+  return `<div class="case-hand" id="hand-case-${c}"><div class="fan" aria-hidden="true">${cards}</div>
+    <button class="hand-select" data-action="inspect-hand" data-c="${c}" id="inspect-${c}" aria-pressed="${open}" ${count<4?'disabled':''}>
+    <strong>Case ${c+1}</strong><span>${caption}</span></button></div>`;
+}
 function viewTurn(){
   const p=g.order[g.turn],N=esc(g.names[p]),cur=g.cur;
   const nextP=g.turn+1<g.order.length?esc(g.names[g.order[g.turn+1]]):null;
@@ -1150,14 +1214,16 @@ function viewTurn(){
   }
   let body='';
   if(g.step==='deal'||g.step==='choose'){
-    const decks=g.step!=='deal'?'':`<div class="decks">${PLAY_DECKS.map((k,i)=>{
+    const decks=`<div class="decks">${PLAY_DECKS.map((k,i)=>{
         const live=cur.up.some(u=>!u[i]),left=cur.up.filter(u=>!u[i]).length;
         return `<div class="pile ${live?'':'is-spent'}">${cardBack(k,{cls:'deck'+(live?' is-live':''),attrs:`id="deck-${k}" `+(live?`data-action="deal" data-i="${i}" role="button" tabindex="0" aria-label="Deal from the ${DECK[k].name} deck"`:'aria-hidden="true"')})}<span class="pile__n">${live?'Tap to deal · '+left+' to go':'Dealt'}</span></div>`}).join('')}</div>
-      <div class="actions"><button class="btn btn--sm" data-action="deal-rest" id="btn-deal-rest">Deal the rest</button><span class="note">Tap a deck to deal its card into the next case that needs one.</span></div>
-      <p class="scene-label">Your ${g.casesPer} cases</p>`;
-    body=decks+`<div class="cases">${cur.cases.map((_,c)=>caseFile(c,{title:'Case '+(c+1),
-      action:g.step==='choose'?`<button class="btn btn--sm" data-action="keep" data-c="${c}" id="btn-keep-${c}">Keep case ${c+1}</button>`:''})).join('')}</div>`
-      +(g.step==='choose'?`<p class="note">Keep one case exactly as dealt. You can't move cards between cases. The others are discarded.</p>`:'');
+      ${g.step==='deal'?'<div class="actions"><button class="btn btn--sm" data-action="deal-rest" id="btn-deal-rest">Deal the rest</button><span class="note">Tap a deck to draw into the next hand.</span></div>':''}`;
+    const inspected=cur.inspected,ids=cur.cases[inspected];
+    const reading=ids?`<section class="hand-reading" tabindex="-1" aria-label="Case ${inspected+1}"><h3>Case ${inspected+1} · ${yearsLabel(caseYears(ids))}</h3>
+      <p class="charge">${chargeHTML(ids.map(card),4)}</p>${g.step==='choose'?`<button class="btn btn--primary" data-action="keep" data-c="${inspected}" id="btn-keep-${inspected}">Keep case ${inspected+1}</button>`:''}</section>`:'';
+    body=`<div class="deal-table">${decks}${reading}<section class="hand-tray"><h3>Your hands</h3>
+      <p>Tap any complete hand to turn it over.${g.step==='choose'?' Keep your favorite case.':''}</p>
+      <div class="hand-rack" style="--hands:${cur.cases.length}">${cur.cases.map((_,c)=>caseHand(c)).join('')}</div></section></div>`;
   }else if(g.step==='swap'){
     const how=g.swapPick===1?'Discard it and draw the top card of that deck. You must keep the new card.':`Discard it, look at the top ${g.swapPick} cards of that deck, and keep the one you like best. You can't get the discarded card back.`;
     body=caseFile(0,{title:'Your case',cls:'is-kept'})+`<div class="callout"><h3>Swap one card?</h3><p>${how}</p>
@@ -1395,8 +1461,19 @@ function act(a,el){
     case 'discard-game':ls.del(GAME_SAVE_KEY);break;
     case 'begin-turn':if(g.step==='pass')beginTurn();break;
     case 'deal':if(g.step==='deal')dealOne(+el.dataset.i);break;
-    case 'deal-rest':if(g.step==='deal'){g.cur.up=g.cur.up.map(u=>u.map(()=>true));g.step='choose'}break;
-    case 'keep':if(g.step==='choose')keepCase(+el.dataset.c);break;
+    case 'deal-rest':if(g.step==='deal'){
+      const dealt=[];
+      g.cur.up.forEach((up,c)=>up.forEach((ready,i)=>{if(!ready){up[i]=true;dealt.push([c,i])}}));
+      g.fresh={dealt};g.step='choose';
+    }break;
+    case 'inspect-hand':{
+      const c=Number(el.dataset.c);
+      if(g.phase==='turn'&&['deal','choose'].includes(g.step)&&g.cur.up[c]?.every(Boolean)&&g.cur.inspected!==c){
+        g.cur.inspected=c;g.fresh={inspect:c};
+      }
+      break;
+    }
+    case 'keep':if(g.step==='choose'&&g.cur.inspected===+el.dataset.c)keepCase(+el.dataset.c);break;
     case 'swap-card':if(g.step==='swap'){swapCard(+el.dataset.i);persistReview()}break;
     case 'no-swap':if(g.step==='swap')g.step='done';break;
     case 'pick':if(g.step==='pick')pickOption(+el.dataset.o);break;
@@ -1414,7 +1491,13 @@ function act(a,el){
     case 'flag':{const id=el.dataset.id,o=review.cards[id]||(review.cards[id]={});o.status=o.status==='needs'?'':'needs';persistReview();break}
     default:return false;
   }
-  ls.set('ptf-setup',setup);saveGame();renderPlay();return true;
+  ls.set('ptf-setup',setup);saveGame();renderPlay();
+  if(a==='inspect-hand'){
+    const reading=$('.hand-reading');
+    reading?.focus({preventScroll:true});
+    reading?.scrollIntoView({block:'nearest'});
+  }
+  return true;
 }
 function actCards(a,el){
   const dlg=$('#editor'),id=dlg.dataset.id;

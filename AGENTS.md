@@ -42,7 +42,7 @@ Crime, Place, and Evidence entries should omit a final period where the game sup
 
 ## How a round works
 
-1. **Pass the device.** Only the active player sees the cases they are building. In the browser, confirm the handoff, then tap the decks to turn over cards or select **Deal the rest**. With printed cards, deal each case as a face-down row with one card from each deck.
+1. **Pass the device.** Only the active player sees the cases they are building. In the browser, confirm the handoff, then tap the decks or select **Deal the rest**. Each case gets a separate face-down hand. Tap a complete hand to turn it over and read it. After dealing all hands, choose which case to keep. With printed cards, deal each case as a face-down packet with one card from each deck and pick up one packet at a time.
 2. **Keep one case.** Choose the funniest complete row. Discard all other rows into the corresponding deck piles. Cards cannot move between rows.
 3. **Swap one card if you want.** Choose one slot in the retained case. Discard its original card and draw replacements from that slot’s deck. Keep one replacement and discard the rest. A blind replacement is mandatory once drawn. With swapping enabled, the player can also keep the original case by skipping the swap.
 4. **Lock the case and hand off.** Keep the chosen row private. Repeat until every player has one case.

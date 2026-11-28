@@ -1,4 +1,38 @@
 /* Screen furniture for the court. Printed sheets and card artwork use the original styles. */
+.deal-table {
+  display: flex; flex-direction: column; gap: 16px; min-height: min(64svh, 590px);
+  padding: clamp(12px, 2vw, 24px); border: 2px solid var(--ink); border-radius: 16px;
+  background: var(--surface);
+}
+.deal-table .pile .card {width: min(82%, 94px)}
+.hand-tray {
+  margin-top: auto; padding: 16px clamp(8px, 2vw, 24px) 12px; border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 110%, #633043, #311e2c 80%); color: #fff7df;
+  box-shadow: inset 0 0 0 1px #fff3;
+}
+.hand-tray h3 {font: italic bold 1.45rem Georgia, serif; color: inherit}
+.hand-tray > p {font-size: .94rem; margin: 3px 0 12px}
+.hand-rack {display: grid; grid-template-columns: repeat(var(--hands), minmax(0,1fr)); gap: 8px}
+.case-hand {position: relative; min-width: 0; border: 1px dashed #c6a9ac80; border-radius: 10px; padding: 8px 3px}
+.case-hand:has(button[aria-pressed="true"]) {border: 1px solid #ff99b5; background: #ffffff0d}
+.fan {position: relative; width: min(100%, 216px); margin: auto; aspect-ratio: 1.72}
+.hand-slot {position: absolute; width: 38%; left: calc(10% + var(--slot)*14%); top: 3%; pointer-events: none}
+.hand-angle {transform: rotate(calc((var(--slot) - 1.5)*10deg)); transform-origin: 50% 95%}
+.hand-face {position: relative; transform-style: preserve-3d}
+.hand-face > .card {backface-visibility: hidden}
+.hand-face .card__in {box-shadow: 0 1px 4px #16091288}
+.hand-select {display: grid; justify-items: center; width: 100%; border: none; background: none; color: inherit; cursor: pointer; font: inherit}
+.hand-select::after {content: ''; position: absolute; inset: 0; border-radius: 10px}
+.hand-select:focus-visible::after {outline: 3px solid #fff}
+.hand-select span {font-size: .84rem; color: #f4d5de}
+.hand-select:disabled {cursor: default}
+.hand-reading {display: grid; gap: 8px; justify-items: start}
+.hand-reading .charge {margin: 0}
+@media (max-width: 540px) {
+  .hand-rack {grid-template-columns: repeat(2,minmax(0,1fr))}
+  .fan {max-width: 145px}
+  .deal-table .decks {gap: 6px}
+}
 :root {
   --bg: #f6f1e5;
   --surface: #fffaf0;
